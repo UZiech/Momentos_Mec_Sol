@@ -28,6 +28,7 @@ def callback():
         float(ql.get())
         float(qlxi.get())
         float(qlxf.get())
+        float(dist.get())
 
         #Posicionamento da area do grafico
         canvas.grid(column=0, row=11, padx=10, pady=10, columnspan=6)
@@ -108,7 +109,7 @@ y5 = Entry(main, width=10, textvariable=yp5)
 ql = Entry(main, width=10, textvariable=qlp)
 qlxi = Entry(main, width=10, textvariable=qlxip)
 qlxf = Entry(main, width=10, textvariable=qlxfp)
-dist = Entry(main, width=10, textvariable=qlxfp)
+dist = Entry(main, width=10, textvariable=distp)
 
 #atribui o valor fornecido pelo usuarios para as variaveis
 valor_q1 = q1.get()
@@ -132,7 +133,7 @@ valor_y5 = y5.get()
 valor_qp = ql.get()
 valor_qpxi = qlxi.get()
 valor_qpxf = qlxf.get()
-valor_dist = qlxf.get()
+valor_dist = dist.get()
 
 #Inicia as variaveis de texto
 info1=Label(main, text="Forneça apenas valores numéricos com separador decimal sendo o ponto.")
