@@ -31,18 +31,18 @@ def callback():
         float(qlxi.get())
         float(qlxf.get())
         float(dist.get())
-        print(dist.get())
+        
+
         if float(dist.get()) < 0:
-            float("a")
+            info3["text"] = "Deve ser fornecido valor positivo para a distância"
+            return False
 
         #Posicionamento da area do grafico
         canvas.grid(column=0, row=11, padx=10, pady=10, columnspan=6)
  
         info3["text"] = ""
     except:
-        info3["text"] = "Apenas números, sinal negaitivo ou separador decimal."
-        if float(dist.get()) < 0:
-            info3["text"] = "Deve ser fornecido valor positivo para a distância"
+        info3["text"] = "Apenas números, sinal negaitivo ou separador decimal."  
 
 main = Tk()
 main.title("Mecanica dos solidos 1 - Diagrama de momentos")
@@ -145,7 +145,7 @@ valor_dist = dist.get()
 #Inicia as variaveis de texto
 info1=Label(main, text="Forneça apenas valores numéricos com separador decimal sendo o ponto.")
 info2 = Label(main, text="Distância entre os pontos de apoio em metros.")
-info3 = Label(main, text="", font="Arial")
+info3 = Label(main, text="", font="Arial", fg="red")
 texto_1=Label(main, text="Carga 1:")
 texto_2=Label(main, text="Carga 2:")
 texto_3=Label(main, text="Carga 3:")
