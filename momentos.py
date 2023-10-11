@@ -164,8 +164,37 @@ texto_ql=Label(main, text="Carga Distribuida")
 
 #Tela de desenhos
 canvas = Canvas(main, width=450, height=400, bg="white")
-canvas.create_line(0, 0, 700, 500, fill="red")
-canvas.create_oval(100, 100, 120, 120, fill="red")
+
+#Desenha os pontos de apoio - primeiro o da esquereda, depois o da direita e depois a viga
+#Desenho do apoio da esquerda - engastado
+canvas.create_polygon(25, 300, 50, 300, 37, 278, 25, 300, outline="black", width = 2, fill="white")
+canvas.create_line(25,305,30,300)
+canvas.create_line(30,305,35,300)
+canvas.create_line(35,305,40,300)
+canvas.create_line(40,305,45,300)
+canvas.create_line(45,305,50,300)
+
+#Desenho do apoio da esquerda - movel
+canvas.create_polygon(400, 300, 425, 300, 412, 278, 400, 300, outline="black", width = 2, fill="white")
+canvas.create_oval(400, 305, 405, 300, fill="white")
+canvas.create_oval(405, 305, 410, 300, fill="white")
+canvas.create_oval(410, 305, 415, 300, fill="white")
+canvas.create_oval(415, 305, 420, 300, fill="white")
+canvas.create_oval(420, 305, 425, 300, fill="white")
+canvas.create_line(385,310,390,305)
+canvas.create_line(390,305,435,305)
+canvas.create_line(395,310,400,305)
+canvas.create_line(405,310,410,305)
+canvas.create_line(415,310,420,305)
+canvas.create_line(425,310,430,305)
+
+
+#Desenho da viga
+canvas.create_line(37, 278, 412, 278, width = 4, fill="black")
+
+
+
+
 
 
 
