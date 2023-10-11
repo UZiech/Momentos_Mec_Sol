@@ -2,9 +2,10 @@ from tkinter import *
 from pkg_resources import resource_filename
  
 
-#Funcao que checa a validade do valor fornecido pelo usuario
-def callback():
 
+#Funcao que checa a validade do valor fornecido pelo usuario
+def valida_entrada():
+        #remove algum gráfico que por ventura exista
     canvas.grid_remove()
 
     #testa se os valores fornecidos pelo usuarios estao corretos
@@ -21,32 +22,77 @@ def callback():
         float(x4.get())
         float(x5.get())
 
-        float(y1.get())
-        float(y2.get())
-        float(y3.get())
-        float(y4.get())
-        float(y5.get())
-
         float(ql.get())
         float(qlxi.get())
         float(qlxf.get())
         float(dist.get())
-        
-
-        if float(dist.get()) < 0:
-            info3["text"] = "Deve ser fornecido valor positivo para a distância"
-            return False
-
-        #Posicionamento da area do grafico
-        canvas.grid(column=0, row=11, padx=10, pady=10, columnspan=6)
  
         info3["text"] = ""
     except:
-        info3["text"] = "Apenas números, sinal negaitivo ou separador decimal."  
+        info3["text"] = "Apenas números, sinal negaitivo ou separador decimal."
+        return False  
 
+    #atribui o valor fornecido pelo usuarios para as variaveis
+    valor_q1 = float(q1.get())
+    valor_q2 = float(q2.get())
+    valor_q3 = float(q3.get())
+    valor_q4 = float(q4.get())
+    valor_q5 = float(q5.get())
+
+    valor_x1 = float(x1.get())
+    valor_x2 = float(x2.get())
+    valor_x3 = float(x3.get())
+    valor_x4 = float(x4.get())
+    valor_x5 = float(x5.get())
+
+    valor_ql = float(ql.get())
+    valor_qlxi = float(qlxi.get())
+    valor_qlxf = float(qlxf.get())
+    valor_dist = float(dist.get())
+
+    if valor_dist < 0:
+        info3["text"] = "Deve ser fornecido valor positivo para a distância"
+        return False
+
+    elif valor_x1 < 0 or valor_x1 > valor_dist:
+        info3["text"] = "A carga 1 estás fora da viga. Corrigir."
+        return False
+    
+    elif valor_x2 < 0 or valor_x2 > valor_dist:
+        info3["text"] = "A carga 2 está fora da viga. Corrigir."
+        return False
+
+    elif valor_x3 < 0 or valor_x3 > valor_dist:
+        info3["text"] = "A carga 3 está fora da viga. Corrigir."
+        return False
+    
+    elif valor_x4 < 0 or valor_x4 > valor_dist:
+        info3["text"] = "A carga 4 está fora da viga. Corrigir."
+        return False
+    
+    elif valor_x5 < 0 or valor_x5 > valor_dist:
+        info3["text"] = "A carga 5 está fora da viga. Corrigir."
+        return False
+    
+    elif valor_qlxi < 0 or valor_qlxi > valor_dist:
+        info3["text"] = "Parte da carga distribuída está fora da viga. Corrigir."
+        return False
+
+    elif valor_qlxf < 0 or valor_qlxf > valor_dist:
+        info3["text"] = "Parte da carga distribuída está fora da viga. Corrigir."
+        return False
+
+    else:
+        #Se não ocorreram erros, posiciona a area do grafico
+        canvas.grid(column=0, row=11, padx=10, pady=10, columnspan=6)
+
+
+#####################
+##Interface Gráfica##
+#####################
 main = Tk()
 main.title("Mecanica dos solidos 1 - Diagrama de momentos")
-#main.geometry("550x700")
+#main.geometry("480x500")
 resource1 = resource_filename(__name__, 'favicon.ico')
 main.iconbitmap(resource1)
 
@@ -73,18 +119,6 @@ xp3.set("0.00")
 xp4.set("0.00")
 xp5.set("0.00")
 
-yp1 = StringVar()
-yp2 = StringVar()
-yp3 = StringVar()
-yp4 = StringVar()
-yp5 = StringVar()
-yp1.set("0.00")
-yp2.set("0.00")
-yp3.set("0.00")
-yp4.set("0.00")
-yp5.set("0.00")
-
-
 qlp = StringVar()
 qlxip = StringVar()
 qlxfp = StringVar()
@@ -107,40 +141,10 @@ x3 = Entry(main, width=10, textvariable=xp3)
 x4 = Entry(main, width=10, textvariable=xp4)
 x5 = Entry(main, width=10, textvariable=xp5)
 
-y1 = Entry(main, width=10, textvariable=yp1)
-y2 = Entry(main, width=10, textvariable=yp2)
-y3 = Entry(main, width=10, textvariable=yp3)
-y4 = Entry(main, width=10, textvariable=yp4)
-y5 = Entry(main, width=10, textvariable=yp5)
-
 ql = Entry(main, width=10, textvariable=qlp)
 qlxi = Entry(main, width=10, textvariable=qlxip)
 qlxf = Entry(main, width=10, textvariable=qlxfp)
 dist = Entry(main, width=10, textvariable=distp)
-
-#atribui o valor fornecido pelo usuarios para as variaveis
-valor_q1 = q1.get()
-valor_q2 = q2.get()
-valor_q3 = q3.get()
-valor_q4 = q4.get()
-valor_q5 = q5.get()
-
-valor_x1 = x1.get()
-valor_x2 = x2.get()
-valor_x3 = x3.get()
-valor_x4 = x4.get()
-valor_x5 = x5.get()
-
-valor_y1 = y1.get()
-valor_y2 = y2.get()
-valor_y3 = y3.get()
-valor_y4 = y4.get()
-valor_y5 = y5.get()
-
-valor_qp = ql.get()
-valor_qpxi = qlxi.get()
-valor_qpxf = qlxf.get()
-valor_dist = dist.get()
 
 #Inicia as variaveis de texto
 info1=Label(main, text="Forneça apenas valores numéricos com separador decimal sendo o ponto.")
@@ -154,7 +158,6 @@ texto_5=Label(main, text="Carga 5:")
 texto_qpkn=Label(main, text="Q (KN)")
 texto_qlkn=Label(main, text="Q (KN/m):")
 texto_x=Label(main, text="X (m)")
-texto_y=Label(main, text="Y (m)")
 texto_inicio=Label(main, text="Inicio (m):")
 texto_fim=Label(main, text="Fim (m):")
 texto_dist=Label(main, text="Distancia:")
@@ -193,11 +196,6 @@ canvas.create_line(425,310,430,305)
 canvas.create_line(37, 278, 412, 278, width = 4, fill="black")
 
 
-
-
-
-
-
 ###################################
 ##Organizacao dos widget por grid##
 ###################################
@@ -214,7 +212,6 @@ texto_5.grid(column=0, row=8, padx=10, pady=10)
 texto_qpkn.grid(column=1, row=3, padx=10, pady=10)
 texto_qlkn.grid(column=4, row=4, padx=10, pady=10)
 texto_x.grid(column=2, row=3, padx=10, pady=10)
-texto_y.grid(column=3, row=3, padx=10, pady=10)
 texto_inicio.grid(column=4, row=5, padx=10, pady=10)
 texto_fim.grid(column=4, row=6, padx=10, pady=10)
 texto_dist.grid(column=0, row=10, padx=10, pady=10)
@@ -235,12 +232,6 @@ x3.grid(column=2, row=6, padx=10, pady=10)
 x4.grid(column=2, row=7, padx=10, pady=10)
 x5.grid(column=2, row=8, padx=10, pady=10)
 
-y1.grid(column=3, row=4, padx=10)
-y2.grid(column=3, row=5, padx=10, pady=10)
-y3.grid(column=3, row=6, padx=10, pady=10)
-y4.grid(column=3, row=7, padx=10, pady=10)
-y5.grid(column=3, row=8, padx=10, pady=10)
-
 ql.grid(column=5, row=4, padx=10)
 qlxi.grid(column=5, row=5, padx=10, pady=10)
 qlxf.grid(column=5, row=6, padx=10, pady=10)
@@ -249,7 +240,7 @@ dist.grid(column=1, row=10, padx=10, pady=10)
 
 #Inicializacao e posicionamento do botao calcular
 #Após o usuario clicar no botao, chama a função que realiza as checagens e essa, chama a funcao que realiza os calculos
-botao_calcular = Button(main, text="Calcular", command=callback)
+botao_calcular = Button(main, text="Calcular", command=valida_entrada)
 botao_calcular.grid(column=4, row=10, padx=10, pady=10)
 
 #Mostra os resultados da conferencia dos dados de entrada
@@ -259,8 +250,5 @@ info3.grid(column=0, row=11, padx=10, pady=10, columnspan=6)
 #Inicializacao e posicionamento do botao sair
 botao_sair = Button(master=main, text="Sair", command=main.destroy)
 botao_sair.grid(column=5, row=10)
-
-
-
 
 main.mainloop()
