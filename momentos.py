@@ -30,11 +30,11 @@ def callback():
         float(qlxf.get())
 
         #Posicionamento da area do grafico
-        canvas.grid(column=0, row=10, padx=10, pady=10, columnspan=6)
+        canvas.grid(column=0, row=11, padx=10, pady=10, columnspan=6)
  
-        info2["text"] = ""
+        info3["text"] = ""
     except:
-        info2["text"] = "Apenas números, sinal negaitivo ou separador decimal."
+        info3["text"] = "Apenas números, sinal negaitivo ou separador decimal."
 
 main = Tk()
 main.title("Mecanica dos solidos 1 - Diagrama de momentos")
@@ -80,9 +80,11 @@ yp5.set("0.00")
 qlp = StringVar()
 qlxip = StringVar()
 qlxfp = StringVar()
+distp = StringVar()
 qlp.set("0.00")
 qlxip.set("0.00")
 qlxfp.set("0.00")
+distp.set("2.00")
 
 
 q1 = Entry(main, width=10, textvariable=qp1)
@@ -106,6 +108,7 @@ y5 = Entry(main, width=10, textvariable=yp5)
 ql = Entry(main, width=10, textvariable=qlp)
 qlxi = Entry(main, width=10, textvariable=qlxip)
 qlxf = Entry(main, width=10, textvariable=qlxfp)
+dist = Entry(main, width=10, textvariable=qlxfp)
 
 #atribui o valor fornecido pelo usuarios para as variaveis
 valor_q1 = q1.get()
@@ -129,27 +132,30 @@ valor_y5 = y5.get()
 valor_qp = ql.get()
 valor_qpxi = qlxi.get()
 valor_qpxf = qlxf.get()
+valor_dist = qlxf.get()
 
 #Inicia as variaveis de texto
-info1=Label(main, text="Forneça apenas valores numéricos com separador decimal sendo o ponto")
-info2 = Label(main, text="", font="Arial")
+info1=Label(main, text="Forneça apenas valores numéricos com separador decimal sendo o ponto.")
+info2 = Label(main, text="Distância entre os pontos de apoio em metros.")
+info3 = Label(main, text="", font="Arial")
 texto_1=Label(main, text="Carga 1:")
 texto_2=Label(main, text="Carga 2:")
 texto_3=Label(main, text="Carga 3:")
 texto_4=Label(main, text="Carga 4:")
 texto_5=Label(main, text="Carga 5:")
 texto_qpkn=Label(main, text="Q (KN)")
-texto_qlkn=Label(main, text="Q (KN/m)")
+texto_qlkn=Label(main, text="Q (KN/m):")
 texto_x=Label(main, text="X (m)")
 texto_y=Label(main, text="Y (m)")
-texto_inicio=Label(main, text="Inicio (m)")
-texto_fim=Label(main, text="Fim (m)")
+texto_inicio=Label(main, text="Inicio (m):")
+texto_fim=Label(main, text="Fim (m):")
+texto_dist=Label(main, text="Distancia:")
 
 texto_qp=Label(main, text="Cargas Pontuais")
 texto_ql=Label(main, text="Carga Distribuida")
 
 #Tela de desenhos
-canvas = Canvas(main, width=700, height=550, bg="white")
+canvas = Canvas(main, width=450, height=400, bg="white")
 canvas.create_line(0, 0, 700, 500, fill="red")
 canvas.create_oval(100, 100, 120, 120, fill="red")
 
@@ -174,6 +180,7 @@ texto_x.grid(column=2, row=3, padx=10, pady=10)
 texto_y.grid(column=3, row=3, padx=10, pady=10)
 texto_inicio.grid(column=4, row=5, padx=10, pady=10)
 texto_fim.grid(column=4, row=6, padx=10, pady=10)
+texto_dist.grid(column=0, row=10, padx=10, pady=10)
 
 texto_qp.grid(column=0, row=2, columnspan=4)
 texto_ql.grid(column=4, row=2, columnspan=2)
@@ -200,19 +207,21 @@ y5.grid(column=3, row=8, padx=10, pady=10)
 ql.grid(column=5, row=4, padx=10)
 qlxi.grid(column=5, row=5, padx=10, pady=10)
 qlxf.grid(column=5, row=6, padx=10, pady=10)
+dist.grid(column=1, row=10, padx=10, pady=10)
 
 
 #Inicializacao e posicionamento do botao calcular
 #Após o usuario clicar no botao, chama a função que realiza as checagens e essa, chama a funcao que realiza os calculos
 botao_calcular = Button(main, text="Calcular", command=callback)
-botao_calcular.grid(column=4, row=11, padx=10, pady=10)
+botao_calcular.grid(column=4, row=10, padx=10, pady=10)
 
 #Mostra os resultados da conferencia dos dados de entrada
 info2.grid(column=0, row=9, padx=10, pady=10, columnspan=6)
+info3.grid(column=0, row=11, padx=10, pady=10, columnspan=6)
 
 #Inicializacao e posicionamento do botao sair
 botao_sair = Button(master=main, text="Sair", command=main.destroy)
-botao_sair.grid(column=5, row=11)
+botao_sair.grid(column=5, row=10)
 
 
 
