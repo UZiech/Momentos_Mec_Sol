@@ -5,7 +5,9 @@ from pkg_resources import resource_filename
 #Funcao que checa a validade do valor fornecido pelo usuario
 def callback():
 
-    canvas.grid_remove() 
+    canvas.grid_remove()
+
+    #testa se os valores fornecidos pelo usuarios estao corretos
     try:
         float(q1.get())
         float(q2.get())
@@ -29,6 +31,9 @@ def callback():
         float(qlxi.get())
         float(qlxf.get())
         float(dist.get())
+        print(dist.get())
+        if float(dist.get()) < 0:
+            float("a")
 
         #Posicionamento da area do grafico
         canvas.grid(column=0, row=11, padx=10, pady=10, columnspan=6)
@@ -36,6 +41,8 @@ def callback():
         info3["text"] = ""
     except:
         info3["text"] = "Apenas números, sinal negaitivo ou separador decimal."
+        if float(dist.get()) < 0:
+            info3["text"] = "Deve ser fornecido valor positivo para a distância"
 
 main = Tk()
 main.title("Mecanica dos solidos 1 - Diagrama de momentos")
