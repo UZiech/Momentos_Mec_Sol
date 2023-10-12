@@ -1,10 +1,76 @@
 from tkinter import *
 from pkg_resources import resource_filename
- 
-def desenha(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_ql,valor_qlxi,valor_qlxf,valor_dist):
-    #Tela de desenhos
-    canvas = Canvas(main, width=450, height=350, bg="white")
 
+##############################
+##Desenha as cargas pontuais##
+##############################
+def desenha_qp(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_dist):
+
+    x0=37
+    xf=412
+    a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
+
+    if not canvas.gettags("qp"):
+        #esses ifs são para verificar se as cargas pontuais são maiores que zero. Se forem maiores que zero, aí desenham o vetor
+        if valor_q1>0:
+            canvas.create_polygon(x0+valor_x1*a-10,248,x0+valor_x1*a, 278,x0+valor_x1*a+10,248, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x1*a,278, x0+valor_x1*a, 178, fill="blue", width=2,tags="qp")
+
+        if valor_q2>0:
+            canvas.create_polygon(x0+valor_x2*a-10,248,x0+valor_x2*a, 278,x0+valor_x2*a+10,248, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x2*a,278, x0+valor_x2*a, 178, fill="blue", width=2,tags="qp")
+
+        if valor_q3>0:
+            canvas.create_polygon(x0+valor_x3*a-10,248,x0+valor_x3*a, 278,x0+valor_x3*a+10,248, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x3*a,278, x0+valor_x3*a, 178, fill="blue", width=2,tags="qp")
+
+        if valor_q4>0:
+            canvas.create_polygon(x0+valor_x4*a-10,248,x0+valor_x4*a, 278,x0+valor_x4*a+10,248, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x4*a,278, x0+valor_x4*a, 178, fill="blue", width=2,tags="qp")
+
+        if valor_q5>0:
+            canvas.create_polygon(x0+valor_x5*a-10,248,x0+valor_x5*a, 278,x0+valor_x5*a+10,248, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x5*a,278, x0+valor_x5*a, 178, fill="blue", width=2,tags="qp")
+    else:
+        canvas.delete("qp")
+
+
+##################################
+##Desenha as cargas distribuidas##
+##################################
+def desenha_ql(valor_ql,valor_qlxi,valor_qlxf,valor_dist):
+    x0=37
+    xf=412
+    espacamento_vetores=50 #espaçamento entre vetores em pixel
+    a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
+    
+    if not canvas.gettags("ql"):
+        if valor_ql > 0:
+            qtd_vetores = int((valor_qlxf*a-valor_qlxi*a)/espacamento_vetores)
+            xi=valor_qlxi
+
+        #Se a distancia final for muito proximo da inicial da carga distribuida, recaira em divisão por zero. Esse if é para evitar divisao por zero
+            if qtd_vetores <= 1:
+                qtd_vetores=1
+        
+            incremento=float((valor_qlxf-valor_qlxi)/(qtd_vetores))
+
+        #cria os vetores de força devido a carga distribuida
+            for i in range(qtd_vetores+1):
+                canvas.create_polygon(x0+xi*a-5,268,x0+xi*a, 278,x0+xi*a+5,268, outline="green", width = 2, fill="white",tag="ql")
+                canvas.create_line(x0+xi*a,278, x0+xi*a, 228, fill="green", width=2,tag="ql")
+                xi=xi+incremento
+                
+            #Desenha a linha horizontal que liga todos os vetores de carga distribuida    
+            canvas.create_line(x0+valor_qlxi*a,228, x0+valor_qlxf*a, 228, fill="green", width=2,tag="ql")
+    else:
+        canvas.delete("ql")
+
+
+###########################################################################
+##Função que mostra o grafico e e chama as funcoes que desenham as cargas##
+###########################################################################
+def desenha(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_ql,valor_qlxi,valor_qlxf,valor_dist):
     #Desenha os pontos de apoio - primeiro o da esquereda, depois o da direita e depois a viga
     #Desenho do apoio da esquerda - engastado
     canvas.create_polygon(25, 300, 50, 300, 37, 278, 25, 300, outline="black", width = 2, fill="white")
@@ -30,58 +96,79 @@ def desenha(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor
 
     #Desenho da viga
     canvas.create_line(37, 278, 412, 278, width = 4, fill="black")    
-        
-    x0=37
-    xf=412
-    y0=278
-    espacamento_vetores=50 #espaçamento entre vetores em pixel
-    a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
-
-    #esses ifs são para verificar se as cargas são maiores que zero. Se forem maiores que zero, aí desenham o vetor
-    if valor_q1>0:
-        canvas.create_polygon(x0+valor_x1*a-10,248,x0+valor_x1*a, 278,x0+valor_x1*a+10,248, outline="blue", width = 2, fill="white")
-        canvas.create_line(x0+valor_x1*a,278, x0+valor_x1*a, 178, fill="blue", width=2)
-
-    if valor_q2>0:
-        canvas.create_polygon(x0+valor_x2*a-10,248,x0+valor_x2*a, 278,x0+valor_x2*a+10,248, outline="blue", width = 2, fill="white")
-        canvas.create_line(x0+valor_x2*a,278, x0+valor_x2*a, 178, fill="blue", width=2)
-
-    if valor_q3>0:
-        canvas.create_polygon(x0+valor_x3*a-10,248,x0+valor_x3*a, 278,x0+valor_x3*a+10,248, outline="blue", width = 2, fill="white")
-        canvas.create_line(x0+valor_x3*a,278, x0+valor_x3*a, 178, fill="blue", width=2)
-
-    if valor_q4>0:
-        canvas.create_polygon(x0+valor_x4*a-10,248,x0+valor_x4*a, 278,x0+valor_x4*a+10,248, outline="blue", width = 2, fill="white")
-        canvas.create_line(x0+valor_x4*a,278, x0+valor_x4*a, 178, fill="blue", width=2)
-
-    if valor_q5>0:
-        canvas.create_polygon(x0+valor_x5*a-10,248,x0+valor_x5*a, 278,x0+valor_x5*a+10,248, outline="blue", width = 2, fill="white")
-        canvas.create_line(x0+valor_x5*a,278, x0+valor_x5*a, 178, fill="blue", width=2)
     
-    if valor_ql > 0:
-        qtd_vetores = int((valor_qlxf*a-valor_qlxi*a)/espacamento_vetores)
-        xi=valor_qlxi
-
-    #Se a distancia final for muito proximo da inicial da carga distribuida, recaira em divisão por zero. Esse if é para evitar divisao por zero
-        if qtd_vetores <2:
-            qtd_vetores=1
-    
-        incremento=float((valor_qlxf-valor_qlxi)/(qtd_vetores))
-
-    #cria os vetores de força devido a carga distribuida
-        for i in range(qtd_vetores+1):
-            canvas.create_polygon(x0+xi*a-5,268,x0+xi*a, 278,x0+xi*a+5,268, outline="green", width = 2, fill="white")
-            canvas.create_line(x0+xi*a,278, x0+xi*a, 228, fill="green", width=2)
-            xi=xi+incremento
-            
-        
-        #Desenha a linha horizontal que liga todos os vetores de carga distribuida    
-        canvas.create_line(x0+valor_qlxi*a,228, x0+valor_qlxf*a, 228, fill="green", width=2)
-
     #Dispões o gráfco no grid
-    canvas.grid(column=6, row=0, padx=10, pady=10, rowspan=9)
-  
-#Funcao que checa a validade do valor fornecido pelo usuario
+    canvas.grid(column=6, row=0, padx=10, pady=10, rowspan=9,columnspan=2)
+    
+    #Inicializa e mostra os botoes que irao chamar as funções para exibir as cargas pontuais ou distribuida
+    botao_qp = Button(main, text="Cargas Pontuais", command=lambda: desenha_qp(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_dist))
+    botao_ql = Button(main, text="Cargas Distribuidas", command=lambda: desenha_ql(valor_ql,valor_qlxi,valor_qlxf,valor_dist))
+    botao_qp.grid(column=6, row=10, padx=10, pady=10)
+    botao_ql.grid(column=7, row=10, padx=10, pady=10)
+
+    return botao_qp, botao_ql
+
+####################################################################
+##Função que habilita novas entradas, para permitir novos calculos##
+####################################################################
+
+def habilita_entradas(botao_novos_valores, botao_qp, botao_ql):
+    q1.config(state="normal")
+    q2.config(state="normal")
+    q3.config(state="normal")
+    q4.config(state="normal")
+    q5.config(state="normal")
+
+    x1.config(state="normal")
+    x2.config(state="normal")
+    x3.config(state="normal")
+    x4.config(state="normal")
+    x5.config(state="normal")
+    
+    ql.config(state="normal")
+    qlxi.config(state="normal")
+    qlxf.config(state="normal")
+    dist.config(state="normal")
+
+    #retira o botao que habilita as entrada e insere o botao calcular no lugar
+    botao_novos_valores.grid_forget()
+    botao_calcular.grid(column=4, row=10, padx=10, pady=10)
+    canvas.delete("all")
+    canvas.grid_forget()
+    botao_qp.grid_forget()
+    botao_ql.grid_forget()
+
+######################################################################
+##Função que desabilita novas entradas, para não confundir o usuario##
+######################################################################
+
+def desabilita_entradas(botao_qp, botao_ql):
+    q1.config(state="disabled")
+    q2.config(state="disabled")
+    q3.config(state="disabled")
+    q4.config(state="disabled")
+    q5.config(state="disabled")
+
+    x1.config(state="disabled")
+    x2.config(state="disabled")
+    x3.config(state="disabled")
+    x4.config(state="disabled")
+    x5.config(state="disabled")
+    
+    ql.config(state="disabled")
+    qlxi.config(state="disabled")
+    qlxf.config(state="disabled")
+    dist.config(state="disabled")
+
+    botao_calcular.grid_forget()
+    #Inicialia o botao que permite inserir novos valores
+    botao_novos_valores = Button(main, text="Novos Valores", command=lambda: habilita_entradas(botao_novos_valores, botao_qp, botao_ql))
+    botao_novos_valores.grid(column=4, row=10, padx=10, pady=10)
+
+
+###############################################################  
+#Funcao que checa a validade do valor fornecido pelo usuario###
+###############################################################
 def valida_entrada():
     #testa se os valores fornecidos pelo usuarios estao corretos
     try:
@@ -158,16 +245,17 @@ def valida_entrada():
         return False
     
     elif valor_qlxf < valor_qlxi:
-        info3["text"] = "Corrigir valores de coordenadas de início e fim da viga."
+        info3["text"] = "Corrigir valores de início e fim da carga distribuida."
         return False    
 
     else:
         #Se não ocorreram erros, faz o desenho da viga, apoio e forças
-        desenha(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_ql,valor_qlxi,valor_qlxf,valor_dist)
+        botao_qp, botao_ql = desenha(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_ql,valor_qlxi,valor_qlxf,valor_dist)
+        desabilita_entradas(botao_qp, botao_ql)
 
-#####################
-##Interface Gráfica##
-#####################
+###################################
+##Função Main - Interface Gráfica##
+###################################
 main = Tk()
 main.title("Mecanica dos solidos 1 - Diagrama de momentos")
 #main.geometry("480x500")
@@ -284,6 +372,8 @@ qlxi.grid(column=5, row=5, padx=10, pady=10)
 qlxf.grid(column=5, row=6, padx=10, pady=10)
 dist.grid(column=1, row=10, padx=10, pady=10)
 
+#Tela de desenhos
+canvas = Canvas(main, width=450, height=350, bg="white")
 
 #Inicializacao e posicionamento do botao calcular
 #Após o usuario clicar no botao, chama a função que realiza as checagens e essa, chama a funcao que realiza os calculos
