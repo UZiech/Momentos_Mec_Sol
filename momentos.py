@@ -8,29 +8,47 @@ def desenha_qp(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,va
 
     x0=37
     xf=412
+    yb=hc-hc/3
+    yv=yb-22
     a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
 
+    #se já tinha algo desenhado, não faz nada e entra na condição else, que retira os vetores do desenho
     if not canvas.gettags("qp"):
         #esses ifs são para verificar se as cargas pontuais são maiores que zero. Se forem maiores que zero, aí desenham o vetor
-        if valor_q1>0:
-            canvas.create_polygon(x0+valor_x1*a-10,248,x0+valor_x1*a, 278,x0+valor_x1*a+10,248, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x1*a,278, x0+valor_x1*a, 178, fill="blue", width=2,tags="qp")
+        if valor_q1<0:
+            canvas.create_polygon(x0+valor_x1*a-10,yv-20,x0+valor_x1*a, yv,x0+valor_x1*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x1*a,yv, x0+valor_x1*a, yv-60, fill="blue", width=2,tags="qp")
+        elif valor_q1>0:
+            canvas.create_polygon(x0+valor_x1*a-10,yb,x0+valor_x1*a, yv,x0+valor_x1*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x1*a,yb, x0+valor_x1*a, yv+82, fill="blue", width=2,tags="qp")
 
-        if valor_q2>0:
-            canvas.create_polygon(x0+valor_x2*a-10,248,x0+valor_x2*a, 278,x0+valor_x2*a+10,248, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x2*a,278, x0+valor_x2*a, 178, fill="blue", width=2,tags="qp")
+        if valor_q2<0:
+            canvas.create_polygon(x0+valor_x2*a-10,yv-20,x0+valor_x2*a, yv,x0+valor_x2*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x2*a,yv, x0+valor_x2*a, yv-60, fill="blue", width=2,tags="qp")
+        elif valor_q2>0:
+            canvas.create_polygon(x0+valor_x2*a-10,yb,x0+valor_x2*a, yv,x0+valor_x2*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x2*a,yb, x0+valor_x2*a, yv+82, fill="blue", width=2,tags="qp")
 
-        if valor_q3>0:
-            canvas.create_polygon(x0+valor_x3*a-10,248,x0+valor_x3*a, 278,x0+valor_x3*a+10,248, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x3*a,278, x0+valor_x3*a, 178, fill="blue", width=2,tags="qp")
+        if valor_q3<0:
+            canvas.create_polygon(x0+valor_x3*a-10,yv-20,x0+valor_x3*a, yv,x0+valor_x3*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x3*a,yv, x0+valor_x3*a, yv-60, fill="blue", width=2,tags="qp")
+        elif valor_q3>0:
+            canvas.create_polygon(x0+valor_x3*a-10,yb,x0+valor_x3*a, yv,x0+valor_x3*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x3*a,yb, x0+valor_x3*a, yv+82, fill="blue", width=2,tags="qp")
 
-        if valor_q4>0:
-            canvas.create_polygon(x0+valor_x4*a-10,248,x0+valor_x4*a, 278,x0+valor_x4*a+10,248, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x4*a,278, x0+valor_x4*a, 178, fill="blue", width=2,tags="qp")
+        if valor_q4<0:
+            canvas.create_polygon(x0+valor_x4*a-10,yv-20,x0+valor_x4*a, yv,x0+valor_x4*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x4*a,yv, x0+valor_x4*a, yv-60, fill="blue", width=2,tags="qp")
+        elif valor_q4>0:
+            canvas.create_polygon(x0+valor_x4*a-10,yb,x0+valor_x4*a, yv,x0+valor_x4*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x4*a,yb, x0+valor_x4*a, yv+82, fill="blue", width=2,tags="qp")
 
-        if valor_q5>0:
-            canvas.create_polygon(x0+valor_x5*a-10,248,x0+valor_x5*a, 278,x0+valor_x5*a+10,248, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x5*a,278, x0+valor_x5*a, 178, fill="blue", width=2,tags="qp")
+        if valor_q5<0:
+            canvas.create_polygon(x0+valor_x5*a-10,yv-20,x0+valor_x5*a, yv,x0+valor_x5*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x5*a,yv, x0+valor_x5*a, yv-60, fill="blue", width=2,tags="qp")
+        elif valor_q5>0:
+            canvas.create_polygon(x0+valor_x5*a-10,yb,x0+valor_x5*a, yv,x0+valor_x5*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valor_x5*a,yb, x0+valor_x5*a, yv+82, fill="blue", width=2,tags="qp")
     else:
         canvas.delete("qp")
 
@@ -41,28 +59,42 @@ def desenha_qp(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,va
 def desenha_ql(valor_ql,valor_qlxi,valor_qlxf,valor_dist):
     x0=37
     xf=412
+    yb=hc-hc/3
+    yv=yb-22
+
     espacamento_vetores=50 #espaçamento entre vetores em pixel
     a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
+    qtd_vetores = int((valor_qlxf*a-valor_qlxi*a)/espacamento_vetores)
+    xi=valor_qlxi
     
-    if not canvas.gettags("ql"):
-        if valor_ql > 0:
-            qtd_vetores = int((valor_qlxf*a-valor_qlxi*a)/espacamento_vetores)
-            xi=valor_qlxi
+    #Se a distancia final for muito proximo da inicial da carga distribuida, recaira em divisão por zero. Esse if é para evitar divisao por zero
+    if qtd_vetores <= 1:
+        qtd_vetores=1
 
-        #Se a distancia final for muito proximo da inicial da carga distribuida, recaira em divisão por zero. Esse if é para evitar divisao por zero
-            if qtd_vetores <= 1:
-                qtd_vetores=1
+    incremento=float((valor_qlxf-valor_qlxi)/(qtd_vetores)) 
+
         
-            incremento=float((valor_qlxf-valor_qlxi)/(qtd_vetores))
+    #se já tinha algo desenhado, não faz nada e entra na condição else, que retira os vetores do desenho    
+    if not canvas.gettags("ql"):
 
         #cria os vetores de força devido a carga distribuida
+        if valor_ql < 0:
             for i in range(qtd_vetores+1):
-                canvas.create_polygon(x0+xi*a-5,268,x0+xi*a, 278,x0+xi*a+5,268, outline="green", width = 2, fill="white",tag="ql")
-                canvas.create_line(x0+xi*a,278, x0+xi*a, 228, fill="green", width=2,tag="ql")
+                canvas.create_polygon(x0+xi*a-5,yv-10,x0+xi*a, yv,x0+xi*a+5,yv-10, outline="green", width = 2, fill="white",tag="ql")
+                canvas.create_line(x0+xi*a,yv, x0+xi*a, yv-60, fill="green", width=2,tag="ql")
                 xi=xi+incremento
                 
             #Desenha a linha horizontal que liga todos os vetores de carga distribuida    
-            canvas.create_line(x0+valor_qlxi*a,228, x0+valor_qlxf*a, 228, fill="green", width=2,tag="ql")
+            canvas.create_line(x0+valor_qlxi*a,yv-60, x0+valor_qlxf*a, yv-60, fill="green", width=2,tag="ql")
+        elif valor_ql >0:
+            for i in range(qtd_vetores+1):
+                canvas.create_polygon(x0+xi*a-5,yv+10,x0+xi*a, yv,x0+xi*a+5,yv+10, outline="green", width = 2, fill="white",tag="ql")
+                canvas.create_line(x0+xi*a,yv, x0+xi*a, yv+82, fill="green", width=2,tag="ql")
+                xi=xi+incremento
+                
+            #Desenha a linha horizontal que liga todos os vetores de carga distribuida    
+            canvas.create_line(x0+valor_qlxi*a,yv+82, x0+valor_qlxf*a, yv+82, fill="green", width=2,tag="ql")
+
     else:
         canvas.delete("ql")
 
@@ -71,34 +103,37 @@ def desenha_ql(valor_ql,valor_qlxi,valor_qlxf,valor_dist):
 ##Função que mostra o grafico e e chama as funcoes que desenham as cargas##
 ###########################################################################
 def desenha(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_ql,valor_qlxi,valor_qlxf,valor_dist):
+    #coordenadas de posicionamento do desenho
+    yb=hc-hc/3
+
     #Desenha os pontos de apoio - primeiro o da esquereda, depois o da direita e depois a viga
     #Desenho do apoio da esquerda - engastado
-    canvas.create_polygon(25, 300, 50, 300, 37, 278, 25, 300, outline="black", width = 2, fill="white")
-    canvas.create_line(25,305,30,300)
-    canvas.create_line(30,305,35,300)
-    canvas.create_line(35,305,40,300)
-    canvas.create_line(40,305,45,300)
-    canvas.create_line(45,305,50,300)
+    canvas.create_polygon(25, yb, 50, yb, 37, yb-22, 25, yb, outline="black", width = 2, fill="white")
+    canvas.create_line(25,yb+5,30,yb)
+    canvas.create_line(30,yb+5,35,yb)
+    canvas.create_line(35,yb+5,40,yb)
+    canvas.create_line(40,yb+5,45,yb)
+    canvas.create_line(45,yb+5,50,yb)
 
     #Desenho do apoio da direita - movel
-    canvas.create_polygon(400, 300, 425, 300, 412, 278, 400, 300, outline="black", width = 2, fill="white")
-    canvas.create_oval(400, 305, 405, 300, fill="white")
-    canvas.create_oval(405, 305, 410, 300, fill="white")
-    canvas.create_oval(410, 305, 415, 300, fill="white")
-    canvas.create_oval(415, 305, 420, 300, fill="white")
-    canvas.create_oval(420, 305, 425, 300, fill="white")
-    canvas.create_line(385,310,390,305)
-    canvas.create_line(390,305,435,305)
-    canvas.create_line(395,310,400,305)
-    canvas.create_line(405,310,410,305)
-    canvas.create_line(415,310,420,305)
-    canvas.create_line(425,310,430,305)
+    canvas.create_polygon(400, yb, 425, yb, 412, yb-22, 400, yb, outline="black", width = 2, fill="white")
+    canvas.create_oval(400, yb+5, 405, yb, fill="white")
+    canvas.create_oval(405, yb+5, 410, yb, fill="white")
+    canvas.create_oval(410, yb+5, 415, yb, fill="white")
+    canvas.create_oval(415, yb+5, 420, yb, fill="white")
+    canvas.create_oval(420, yb+5, 425, yb, fill="white")
+    canvas.create_line(385,yb+10,390,yb+5)
+    canvas.create_line(390,yb+5,435,yb+5)
+    canvas.create_line(395,yb+10,400,yb+5)
+    canvas.create_line(405,yb+10,410,yb+5)
+    canvas.create_line(415,yb+10,420,yb+5)
+    canvas.create_line(425,yb+10,430,yb+5)
 
     #Desenho da viga
-    canvas.create_line(37, 278, 412, 278, width = 4, fill="black")    
+    canvas.create_line(37, yb-22, 412, yb-22, width = 4, fill="black")    
     
     #Dispões o gráfco no grid
-    canvas.grid(column=6, row=0, padx=10, pady=10, rowspan=9,columnspan=2)
+    canvas.grid(column=6, row=0, padx=10, pady=10, rowspan=10,columnspan=2)
     
     #Inicializa e mostra os botoes que irao chamar as funções para exibir as cargas pontuais ou distribuida
     botao_qp = Button(main, text="Cargas Pontuais", command=lambda: desenha_qp(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_dist))
@@ -258,9 +293,12 @@ def valida_entrada():
 ###################################
 main = Tk()
 main.title("Mecanica dos solidos 1 - Diagrama de momentos")
-#main.geometry("480x500")
 resource1 = resource_filename(__name__, 'favicon.ico')
 main.iconbitmap(resource1)
+
+#dimensoes da area de desenho
+wc=450
+hc=300
 
 #Inicia as variaveis para os campos de entrada com o texto padrao
 qp1 = StringVar()
@@ -373,7 +411,7 @@ qlxf.grid(column=5, row=6, padx=10, pady=10)
 dist.grid(column=1, row=10, padx=10, pady=10)
 
 #Tela de desenhos
-canvas = Canvas(main, width=450, height=350, bg="white")
+canvas = Canvas(main, width=wc, height=hc, bg="white")
 
 #Inicializacao e posicionamento do botao calcular
 #Após o usuario clicar no botao, chama a função que realiza as checagens e essa, chama a funcao que realiza os calculos
