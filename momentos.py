@@ -1,10 +1,10 @@
 from tkinter import *
 from pkg_resources import resource_filename
 
-################
-##Força normal##
-################
-def forca_normal(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_ql,valor_qlxi,valor_qlxf,valor_dist):
+##############################
+##Força de reação dos apoios##
+##############################
+def forca_reacao(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_ql,valor_qlxi,valor_qlxf,valor_dist):
     x0=37
     xf=412
     yb=hc-hc/3
@@ -18,8 +18,9 @@ def forca_normal(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,
     fey=0.00                  #somente iniciando as variaveis para não ter erro - forca vertical do ponto de apoio esquerdo
     fdy=0.00                  #somente iniciando as variaveis para não ter erro - forca vertical do ponto de apoio direito
 
-    #somatorio dos momentos deve ser igual a zero. Fazendo em relação ao ponto direito, pois está livre para girar e resolvendo para fey
+    #somatorio dos momentos deve ser igual a zero. Fazendo em relação ao ponto direito e resolvendo para fey
     fey = -((valor_dist-valor_x1)*valor_q1 + (valor_dist-valor_x2)*valor_q2 + (valor_dist-valor_x3)*valor_q4 + (valor_dist-valor_x4)*valor_q4 + (valor_dist-valor_x5)*valor_q5+(valor_dist-xefql)*Frql)/valor_dist
+    
     #somatorio das forças deve ser igual a zero. Considerando os dois pontos de apoio direito e esquerdo, com componentes x e y
     fdy=-(fey+valor_q1+valor_q2+valor_q3+valor_q4+valor_q5+Frql)
 
@@ -27,27 +28,28 @@ def forca_normal(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,
     fdy_text = str(f'{fdy:.3f}') + "KN"
 
     #se já tinha algo desenhado, não faz nada e entra na condição else, que retira os vetores do desenho
-    if not canvas.gettags("normal"):
-        #esses ifs são para verificar se as forças normais são maiores que zero para desenhar no sentido correto
+    if not canvas.gettags("reacao"):
+        #esses ifs são para verificar se as forças são maiores que zero para desenhar no sentido correto
+             
         if fey<0:
-            canvas.create_polygon(x0-10,yv-20,x0, yv,x0+10,yv-20, outline="red", width = 2, fill="white",tag="normal")
-            canvas.create_line(x0,yv-20, x0, yv-82, fill="red", width=2,tags="normal")
-            canvas.create_text(x0+5, yv-95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="normal")
+            canvas.create_polygon(x0-10,yv-20,x0, yv,x0+10,yv-20, outline="red", width = 2, fill="white",tag="reacao")
+            canvas.create_line(x0,yv-20, x0, yv-82, fill="red", width=2,tags="reacao")
+            canvas.create_text(x0+5, yv-95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
         elif fey>0:
-            canvas.create_polygon(x0-10,yb,x0, yv,x0+10,yb, outline="red", width = 2, fill="white",tag="normal")
-            canvas.create_line(x0,yb, x0, yv+82, fill="red", width=2,tags="normal")
-            canvas.create_text(x0+5, yv+95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="normal")
+            canvas.create_polygon(x0-10,yb,x0, yv,x0+10,yb, outline="red", width = 2, fill="white",tag="reacao")
+            canvas.create_line(x0,yb, x0, yv+82, fill="red", width=2,tags="reacao")
+            canvas.create_text(x0+5, yv+95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
         if fdy<0:
-            canvas.create_polygon(x0+valor_dist*a-10,yv-20,x0+valor_dist*a, yv,x0+valor_dist*a+10,yv-20, outline="red", width = 2, fill="white",tag="normal")
-            canvas.create_line(x0+valor_dist*a,yv-20, x0+valor_dist*a, yv-82, fill="red", width=2,tags="normal")
-            canvas.create_text(x0+valor_dist*a+5, yv-95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="normal")
+            canvas.create_polygon(x0+valor_dist*a-10,yv-20,x0+valor_dist*a, yv,x0+valor_dist*a+10,yv-20, outline="red", width = 2, fill="white",tag="reacao")
+            canvas.create_line(x0+valor_dist*a,yv-20, x0+valor_dist*a, yv-82, fill="red", width=2,tags="reacao")
+            canvas.create_text(x0+valor_dist*a+5, yv-95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
 
         elif fdy>0:
-            canvas.create_polygon(x0+valor_dist*a-10,yb,x0+valor_dist*a, yv,x0+valor_dist*a+10,yb, outline="red", width = 2, fill="white",tag="normal")
-            canvas.create_line(x0+valor_dist*a,yb, x0+valor_dist*a, yv+82, fill="red", width=2,tags="normal")
-            canvas.create_text(x0+valor_dist*a+5, yv+95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="normal")
+            canvas.create_polygon(x0+valor_dist*a-10,yb,x0+valor_dist*a, yv,x0+valor_dist*a+10,yb, outline="red", width = 2, fill="white",tag="reacao")
+            canvas.create_line(x0+valor_dist*a,yb, x0+valor_dist*a, yv+82, fill="red", width=2,tags="reacao")
+            canvas.create_text(x0+valor_dist*a+5, yv+95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
     else:
-        canvas.delete("normal")
+        canvas.delete("reacao")
 
 ##############################
 ##Desenha as cargas pontuais##
@@ -186,18 +188,18 @@ def desenha(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor
     #Inicializa e mostra os botoes que irao chamar as funções para exibir as cargas pontuais ou distribuida
     botao_qp = Button(main, text="Cargas Pontuais", command=lambda: desenha_qp(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_dist))
     botao_ql = Button(main, text="Cargas Distribuidas", command=lambda: desenha_ql(valor_ql,valor_qlxi,valor_qlxf,valor_dist))
-    botao_normal = Button(main, text="Normal", command=lambda: forca_normal(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_ql,valor_qlxi,valor_qlxf,valor_dist))
+    botao_reacao = Button(main, text="Reação", command=lambda: forca_reacao(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_ql,valor_qlxi,valor_qlxf,valor_dist))
     botao_qp.grid(column=6, row=10, padx=10, pady=10)
-    botao_ql.grid(column=8, row=10, padx=10, pady=10)
-    botao_normal.grid(column=6, row=11, padx=10, pady=10)
+    botao_ql.grid(column=7, row=10, padx=10, pady=10)
+    botao_reacao.grid(column=8, row=10, padx=10, pady=10)
 
-    return botao_qp, botao_ql, botao_normal
+    return botao_qp, botao_ql, botao_reacao
 
 ####################################################################
 ##Função que habilita novas entradas, para permitir novos calculos##
 ####################################################################
 
-def habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_normal):
+def habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_reacao):
     q1.config(state="normal")
     q2.config(state="normal")
     q3.config(state="normal")
@@ -222,13 +224,13 @@ def habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_normal):
     canvas.grid_forget()
     botao_qp.grid_forget()
     botao_ql.grid_forget()
-    botao_normal.grid_forget()
+    botao_reacao.grid_forget()
 
 ######################################################################
 ##Função que desabilita novas entradas, para não confundir o usuario##
 ######################################################################
 
-def desabilita_entradas(botao_qp, botao_ql, botao_normal):
+def desabilita_entradas(botao_qp, botao_ql, botao_reacao):
     q1.config(state="disabled")
     q2.config(state="disabled")
     q3.config(state="disabled")
@@ -248,7 +250,7 @@ def desabilita_entradas(botao_qp, botao_ql, botao_normal):
 
     botao_calcular.grid_forget()
     #Inicialia o botao que permite inserir novos valores
-    botao_novos_valores = Button(main, text="Novos Valores", command=lambda: habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_normal))
+    botao_novos_valores = Button(main, text="Novos Valores", command=lambda: habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_reacao))
     botao_novos_valores.grid(column=4, row=10, padx=10, pady=10)
 
 
