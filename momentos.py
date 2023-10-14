@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 from pkg_resources import resource_filename
 
 ##############################
@@ -426,7 +427,7 @@ texto_ql=Label(main, text="Carga Distribuida")
 ##Organizacao dos widget por grid##
 ###################################
 #informação de preenchimento ao usuario
-info1.grid(column=0, row=0, padx=10, pady=10, columnspan=6)
+info1.grid(column=0, row=1, padx=10, pady=10, columnspan=6)
 
 #Textos informativos aos usuarios
 texto_1.grid(column=0, row=4, padx=10)
@@ -465,6 +466,13 @@ dist.grid(column=1, row=10, padx=10, pady=10)
 
 #Tela de desenhos
 canvas = Canvas(main, width=wc, height=hc, bg="white")
+
+#Menu
+menubar = Menu(main)
+helpmenu = Menu(menubar, tearoff=0)
+helpmenu.add_command(label="Sobre", command=lambda: messagebox.showinfo(title="Info", message="Programa para cálculo do momento fletor, força cortante e normal e uma viga biapoiada. Desenvolvido em Python e interface gráfica feita com a biblioteca tkinter\nAlunos:\n\nThayná\nUlisses Sebastian Ziech - 222026770"))
+menubar.add_cascade(label="Ajuda", menu=helpmenu)
+main.config(menu=menubar)
 
 #Inicializacao e posicionamento do botao calcular
 #Após o usuario clicar no botao, chama a função que realiza as checagens e essa, chama a funcao que realiza os calculos
