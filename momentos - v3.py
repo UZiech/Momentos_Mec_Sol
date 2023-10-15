@@ -7,8 +7,7 @@ from pkg_resources import resource_filename
 ##Força de reação dos apoios##
 ##############################
 def forca_reacao():
-    x0=37
-    xf=412
+
     yb=hc-hc/3
     yv=yb-22
     valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
@@ -165,10 +164,8 @@ def desabilita_entradas(botao_qp, botao_ql, botao_reacao):
 ##############################
 def desenha_qp():
 
-    x0=37
-    xf=412
-    yb=hc-hc/3 #hc é definida na função princial. É a altura do canvas
-    yv=yb-22
+    yb=hc-hc/3 #hc é definida na função princial, portanto, é a altura do canvas. yb é a base dos apoios
+    yv=yb-22   #yv é a localização da barra
     valor_dist=float(coord_dx_entry.get())-float(coord_ex_entry.get())
     a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
 
@@ -188,20 +185,28 @@ def desenha_qp():
         valores_xiqp.append(qp[i+2])
     
     for i in range(len(valores_qpy)):
+       
         #esses ifs são para verificar se as cargas pontuais são maiores que zero para desenhar a seta no sentido correto
+        #desenha os vetores das forças em y
         if valores_qpy[i]<0:
-            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv-20,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valores_xiqp[i]*a,yv-20, x0+valores_xiqp[i]*a, yv-82, fill="blue", width=2,tags="qp")
+            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv-10,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yv-10, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valores_xiqp[i]*a,yv-10, x0+valores_xiqp[i]*a, yv-50, fill="blue", width=2,tags="qp")
         elif valores_qpy[i]>0:
-            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yb,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valores_xiqp[i]*a,yb, x0+valores_xiqp[i]*a, yv+82, fill="blue", width=2,tags="qp")
+            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv+10,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yv+10, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valores_xiqp[i]*a,yv+10, x0+valores_xiqp[i]*a, yv+50, fill="blue", width=2,tags="qp")
+        #desenha os vetores das forças em y
+        if valores_qpx[i]<0:
+            canvas.create_polygon(x0+valores_xiqp[i]*a+10 , yv-10 , x0+valores_xiqp[i]*a+10 , yv+10 , x0+valores_xiqp[i]*a, yv, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valores_xiqp[i]*a,yv, x0+valores_xiqp[i]*a+50, yv, fill="blue", width=2,tags="qp")
+        elif valores_qpx[i]>0:
+            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv-10,x0+valores_xiqp[i]*a-10, yv+10, x0+valores_xiqp[i]*a,yv, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valores_xiqp[i]*a,yv, x0+valores_xiqp[i]*a-50, yv, fill="blue", width=2,tags="qp")    
 
 ##################################
 ##Desenha as cargas distribuidas##
 ##################################
 def desenha_qd():
-    x0=37
-    xf=412
+  
     yb=hc-hc/3
     yv=yb-22
     valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
@@ -382,6 +387,10 @@ def valida_entrada(tipo, lista):
             except:
                 messagebox.showerror(title="Info", message="Somente números, positivos ou negativos.\nSeparador decimal deve ser o ponto!")
                 return False
+            
+            if float(qdxi_entry.get()) > float(qdxf_entry.get()):
+                messagebox.showerror(title="Info", message="Corrigir as coordenadas de início e fim da carga aplicada.")
+                return False
 
             lista.append(float(qdfx_entry.get()))
             lista.append(float(qdfy_entry.get()))
@@ -481,6 +490,10 @@ main.iconbitmap(resource1)
 #dimensoes da area de desenho
 wc=450
 hc=300
+
+#margem esquerda e direita no grafico para inicio dos desenhos
+x0=37
+xf=412
 
 #Menu
 menubar = Menu(main)

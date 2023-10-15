@@ -346,7 +346,7 @@ def valida_entrada():
 ##Função Main - Interface Gráfica##
 ###################################
 main = Tk()
-main.title("Mecanica dos solidos 1 - Diagrama de momentos")
+main.title("Mecanica dos sólidos 1 - Diagrama de momentos")
 resource1 = resource_filename(__name__, 'favicon.ico')
 main.iconbitmap(resource1)
 
