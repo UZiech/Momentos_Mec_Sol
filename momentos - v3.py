@@ -189,11 +189,11 @@ def desenha_qp():
         #esses ifs são para verificar se as cargas pontuais são maiores que zero para desenhar a seta no sentido correto
         #desenha os vetores das forças em y
         if valores_qpy[i]<0:
-            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv-10,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yv-10, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valores_xiqp[i]*a,yv-10, x0+valores_xiqp[i]*a, yv-50, fill="blue", width=2,tags="qp")
+            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv-10,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yv-10, outline="skyblue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valores_xiqp[i]*a,yv-10, x0+valores_xiqp[i]*a, yv-50, fill="skyblue", width=2,tags="qp")
         elif valores_qpy[i]>0:
-            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv+10,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yv+10, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valores_xiqp[i]*a,yv+10, x0+valores_xiqp[i]*a, yv+50, fill="blue", width=2,tags="qp")
+            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv+10,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yv+10, outline="skyblue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valores_xiqp[i]*a,yv+10, x0+valores_xiqp[i]*a, yv+50, fill="skyblue", width=2,tags="qp")
         #desenha os vetores das forças em y
         if valores_qpx[i]<0:
             canvas.create_polygon(x0+valores_xiqp[i]*a+10 , yv-10 , x0+valores_xiqp[i]*a+10 , yv+10 , x0+valores_xiqp[i]*a, yv, outline="blue", width = 2, fill="white",tag="qp")
