@@ -275,34 +275,37 @@ def desenha_qd():
 ###########################################################################
 def desenha():
     #coordenadas de posicionamento do desenho
-    yb=hc-hc/3
+    yb=hc-hc/3 #coordenada da parte de baixo da base
+    yv=yb-22 #coordenada vertical da barra
+    xv=x0-12 #coordenada do ponto de apoio esquerdo na linha da viga(origem)
     valor_dist=float(coord_ex_entry.get())-float(coord_dx_entry.get())
 
     #Desenha os pontos de apoio - primeiro o da esquereda, depois o da direita e depois a viga
-    #Desenho do apoio da esquerda - engastado
-    canvas.create_polygon(25, yb, 50, yb, 37, yb-22, 25, yb, outline="black", width = 2, fill="white")
-    canvas.create_line(25,yb+5,30,yb)
-    canvas.create_line(30,yb+5,35,yb)
-    canvas.create_line(35,yb+5,40,yb)
-    canvas.create_line(40,yb+5,45,yb)
-    canvas.create_line(45,yb+5,50,yb)
+    #Desenho do apoio da esquerda - segundo genero
+    canvas.create_polygon(xv, yb, xv+25, yb, xv+12, yv, outline="black", width = 2, fill="white")
+    canvas.create_line(xv,yb+5,xv+5,yb)
+    canvas.create_line(xv+5,yb+5,xv+10,yb)
+    canvas.create_line(xv+10,yb+5,xv+15,yb)
+    canvas.create_line(xv+15,yb+5,xv+20,yb)
+    canvas.create_line(xv+20,yb+5,xv+25,yb)
 
     #Desenho do apoio da direita - movel
-    canvas.create_polygon(400, yb, 425, yb, 412, yb-22, 400, yb, outline="black", width = 2, fill="white")
-    canvas.create_oval(400, yb+5, 405, yb, fill="white")
-    canvas.create_oval(405, yb+5, 410, yb, fill="white")
-    canvas.create_oval(410, yb+5, 415, yb, fill="white")
-    canvas.create_oval(415, yb+5, 420, yb, fill="white")
-    canvas.create_oval(420, yb+5, 425, yb, fill="white")
-    canvas.create_line(385,yb+10,390,yb+5)
-    canvas.create_line(390,yb+5,435,yb+5)
-    canvas.create_line(395,yb+10,400,yb+5)
-    canvas.create_line(405,yb+10,410,yb+5)
-    canvas.create_line(415,yb+10,420,yb+5)
-    canvas.create_line(425,yb+10,430,yb+5)
+    canvas.create_polygon(xf-12, yb, xf+13, yb, xf, yv, outline="black", width = 2, fill="white")
+    canvas.create_oval(xf-12, yb+5, xf-7, yb, fill="white")
+    canvas.create_oval(xf-7, yb+5, xf-2, yb, fill="white")
+    canvas.create_oval(xf-2, yb+5, xf+3, yb, fill="white")
+    canvas.create_oval(xf+3, yb+5, xf+8, yb, fill="white")
+    canvas.create_oval(xf+8, yb+5, xf+13, yb, fill="white")
+    canvas.create_line(xf-15,yb+5,xf+16,yb+5)       #linha da base de suporte do ponto de apoio da direita
+    canvas.create_line(xf-17,yb+10,xf-12,yb+5)
+    canvas.create_line(xf-10,yb+10,xf-5,yb+5)
+    canvas.create_line(xf-5,yb+10,xf,yb+5)
+    canvas.create_line(xf,yb+10,xf+5,yb+5)
+    canvas.create_line(xf+5,yb+10,xf+10,yb+5)
+    canvas.create_line(xf+10,yb+11,xf+16,yb+5)
 
     #Desenho da viga
-    canvas.create_line(37, yb-22, 412, yb-22, width = 4, fill="black")    
+    canvas.create_line(x0, yv, xf, yv, width = 4, fill="black")    
     
     #Dispões o gráfco no grid
     canvas.grid(column=6, row=0, padx=10, pady=10, rowspan=10,columnspan=3)
@@ -488,12 +491,12 @@ resource1 = resource_filename(__name__, 'favicon.ico')
 main.iconbitmap(resource1)
 
 #dimensoes da area de desenho
-wc=450
+wc=500
 hc=300
 
 #margem esquerda e direita no grafico para inicio dos desenhos
-x0=37
-xf=412
+x0=60
+xf=440
 
 #Menu
 menubar = Menu(main)
