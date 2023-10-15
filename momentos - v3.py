@@ -3,16 +3,177 @@ from tkinter import messagebox
 from tkinter import ttk
 from pkg_resources import resource_filename
 
+##############################
+##Força de reação dos apoios##
+##############################
+def forca_reacao():
+    delete="no"
+    x0=37
+    xf=412
+    yb=hc-hc/3
+    yv=yb-22
+    valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
+    a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
+
+    #se já tinha algo desenhado, armazena variavel para limpar tudo ao final
+    if canvas.gettags("reacao"):
+        delete="yes"
+    
+    fey=0.0 #força resultante em y, no apoio esquerdo devido as cargas pontuais
+    fdy=0.0 #força resultante em y, no apoio direito devido as cargas pontuais
+    feyd=0.0  #força resultante em y, no apoio esquero devido as cargas distribuidas
+    fdyd=0.0  #força resultante em y, no apoio direito devido as cargas distribuidas
+    Frql=0.0 #força resultante em toda a extensao da forca distribuida
+    soma_fdy=0.0 #somatorio da força distribuidam aplicada no ponto de efetiva aplicacao da forca distribuida
+
+    valores_qdx = []
+    valores_qdy = []
+    valores_xiqd = []
+    valores_xfqd = []
+
+    valores_qpx = []
+    valores_qpy = []
+    valores_xiqp = []
+
+    #coloca dentro das listas, apenas a força em x, em y, xi e xf que estão dentro da lista qd que são as cargas fornecidas pelo usuario
+    for i in range(0,len(qd),4):
+        valores_qdx.append(qd[i])
+        valores_qdy.append(qd[i+1])
+        valores_xiqd.append(qd[i+2])
+        valores_xfqd.append(qd[i+3])
+
+    #coloca dentro das listas, apenas a força em x, em y, xi e o x de atuação das cargas pontuais
+    for i in range(0,len(qp),3):
+        valores_qpx.append(qp[i])
+        valores_qpy.append(qp[i+1])
+        valores_xiqp.append(qp[i+2])
+    
+    #calcula o valor da força resultante devido às cargas distribuidas
+    for i in range(len(valores_qdy)):
+        dql=abs(valores_xfqd[i]-valores_xiqd[i]) #distancia pela qual há ação da carga distribuida
+        Frql=float(valores_qdy[i]*dql)         #forca resultande devido a carga distribuida
+        soma_fdy=soma_fdy+Frql
+        xefql=valores_xiqd[i]+dql/2    #local efetivo de aplicacao da forca resultante da carga distribuida
+        feyd=feyd-(valor_dist-xefql)*Frql
+
+    feyd=feyd/valor_dist
+    fdyd=-(feyd+soma_fdy)
+
+    #Calculo do momento devido às cargas pontuais
+    #somatorio dos momentos deve ser igual a zero. Fazendo em relação ao ponto direito e resolvendo para fey
+    for j in range(len(valores_qpy)):
+        fey = fey+(valor_dist-valores_xiqp[j])*valores_qpy[j]
+        #fey = -((valor_dist-valor_x1)*valor_q1 + (valor_dist-valor_x2)*valor_q2 + (valor_dist-valor_x3)*valor_q4 + (valor_dist-valor_x4)*valor_q4 + (valor_dist-valor_x5)*valor_q5+(valor_dist-xefql)*Frql)/valor_dist
+    fey=-(fey/valor_dist)
+    
+    #somatorio das forças deve ser igual a zero. Considerando os dois pontos de apoio direito e esquerdo, com componentes x e y
+    fdy= -(fey+sum(valores_qpy))
+
+    fey=fey+feyd #fazendo fey ser a força resultante - somatorio das cargas distribuidas e pontuais
+    fdy=fdy+fdyd
+
+    fey_text = str(f'{fey:.3f}') + "N"
+    fdy_text = str(f'{fdy:.3f}') + "N"
+
+    #esses ifs são para verificar se as forças são maiores que zero para desenhar no sentido correto
+        
+    if fey<0:
+        canvas.create_polygon(x0-10,yv-20,x0, yv,x0+10,yv-20, outline="red", width = 2, fill="white",tag="reacao")
+        canvas.create_line(x0,yv-20, x0, yv-82, fill="red", width=2,tags="reacao")
+        canvas.create_text(x0+5, yv-95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
+    elif fey>0:
+        canvas.create_polygon(x0-10,yb,x0, yv,x0+10,yb, outline="red", width = 2, fill="white",tag="reacao")
+        canvas.create_line(x0,yb, x0, yv+82, fill="red", width=2,tags="reacao")
+        canvas.create_text(x0+5, yv+95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
+    if fdy<0:
+        canvas.create_polygon(x0+valor_dist*a-10,yv-20,x0+valor_dist*a, yv,x0+valor_dist*a+10,yv-20, outline="red", width = 2, fill="white",tag="reacao")
+        canvas.create_line(x0+valor_dist*a,yv-20, x0+valor_dist*a, yv-82, fill="red", width=2,tags="reacao")
+        canvas.create_text(x0+valor_dist*a+5, yv-95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
+
+    elif fdy>0:
+        canvas.create_polygon(x0+valor_dist*a-10,yb,x0+valor_dist*a, yv,x0+valor_dist*a+10,yb, outline="red", width = 2, fill="white",tag="reacao")
+        canvas.create_line(x0+valor_dist*a,yb, x0+valor_dist*a, yv+82, fill="red", width=2,tags="reacao")
+        canvas.create_text(x0+valor_dist*a+5, yv+95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
+    
+    #se já tinha algo desenhado, remove as forças
+    if delete == "yes":
+        canvas.delete("reacao")
+
+####################################################################
+##Função que habilita novas entradas, para permitir novos calculos##
+####################################################################
+
+def habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_reacao):
+    qpfx_entry.config(state="normal")
+    qpfy_entry.config(state="normal")
+    qpxi_entry.config(state="normal")
+
+    qdfx_entry.config(state="normal")
+    qdfy_entry.config(state="normal")
+    qdxi_entry.config(state="normal")
+    qdxf_entry.config(state="normal")
+
+    coord_ex_entry.config(state="normal")
+    coord_dx_entry.config(state="normal")
+
+    carga_entry.config(state="normal")
+    combobox.config(state="readonly")
+
+    #retira os botoes que aparecem embaixo do grafico
+    botao_novos_valores.grid_forget()
+    canvas.delete("all")
+    canvas.grid_forget()
+
+    botao_sair.grid_forget()
+    botao_qp.grid_forget()
+    botao_ql.grid_forget()
+    botao_reacao.grid_forget()
+    frame_grafico.grid_forget()
+
+
+    botao_insere_qp.grid(column=5, row=1, padx=10, pady=10)
+    botao_insere_qd.grid(column=5, row=3, padx=10, pady=10)
+    botao_remover.grid(column=5, row=4, padx=10, pady=10)
+    botao_insere_apoio.grid(column=5, row=5, padx=10, pady=10)
+
+######################################################################
+##Função que desabilita novas entradas, para não confundir o usuario##
+######################################################################
+
+def desabilita_entradas(botao_qp, botao_ql, botao_reacao):
+    qpfx_entry.config(state="disabled")
+    qpfy_entry.config(state="disabled")
+    qpxi_entry.config(state="disabled")
+
+    qdfx_entry.config(state="disabled")
+    qdfy_entry.config(state="disabled")
+    qdxi_entry.config(state="disabled")
+    qdxf_entry.config(state="disabled")
+    coord_ex_entry.config(state="disabled")
+    coord_dx_entry.config(state="disabled")
+
+    carga_entry.config(state="disabled")
+    combobox.config(state="disabled")
+
+    botao_insere_qp.grid_forget()
+    botao_insere_qd.grid_forget()
+    botao_remover.grid_forget()
+    botao_insere_apoio.grid_forget()
+    
+    #Inicialia o botao que permite inserir novos valores
+    botao_novos_valores = Button(frame_grafico, text="Novos Valores", command=lambda: habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_reacao))
+    botao_novos_valores.grid(column=6, row=11, padx=10, pady=10)
 
 ##############################
 ##Desenha as cargas pontuais##
 ##############################
-def desenha_qp(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_dist):
+def desenha_qp():
 
     x0=37
     xf=412
     yb=hc-hc/3
     yv=yb-22
+    valor_dist=float(coord_ex_entry.get())-float(coord_dx_entry.get())
     a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
 
     #se já tinha algo desenhado, não faz nada e entra na condição else, que retira os vetores do desenho
@@ -59,49 +220,73 @@ def desenha_qp(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,va
 ##################################
 ##Desenha as cargas distribuidas##
 ##################################
-def desenha_ql(valor_ql,valor_qlxi,valor_qlxf,valor_dist):
+def desenha_qd():
     x0=37
     xf=412
     yb=hc-hc/3
     yv=yb-22
+    valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
+    delete="no"
 
     espacamento_vetores=50 #espaçamento entre vetores em pixel
     a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
-    qtd_vetores = int((valor_qlxf*a-valor_qlxi*a)/espacamento_vetores)
-    xi=valor_qlxi
-    
-    #Se a distancia final for muito proximo da inicial da carga distribuida, recaira em divisão por zero. Esse if é para evitar divisao por zero
-    if qtd_vetores <= 1:
-        qtd_vetores=1
 
-    incremento=float((valor_qlxf-valor_qlxi)/(qtd_vetores)) 
+    valores_qdx = []
+    valores_qdy = []
+    valores_xiqd = []
+    valores_xfqd = []
 
+    #se já tinha algo desenhado, no final apaga tudo  
+    if canvas.gettags("ql"):
+        delete="yes"
+
+    for i in range(0,len(qd),4):
+        valores_qdx.append(qd[i])
+        valores_qdy.append(qd[i+1])
+        valores_xiqd.append(qd[i+2])
+        valores_xfqd.append(qd[i+3])
+
+
+    for v in range(0,len(valores_xiqd)):
         
-    #se já tinha algo desenhado, não faz nada e entra na condição else, que retira os vetores do desenho    
-    if not canvas.gettags("ql"):
+        qtd_vetores = abs(int((valores_xfqd[v]*a-valores_xiqd[v]*a)/espacamento_vetores))
+
+        #em caso de coordenadas negativas das forças, faz a proporcionalidade para iniciar os desenhos em cima do ponto de apoio da esquerda
+        if valores_xiqd[v] < 0:
+            xi=abs(float(coord_ex_entry.get())-valores_xiqd[v])
+            xa=xi #para poder usar como coordenada na hora de desenhar a linha que liga os vetores
+        else:
+            xi=valores_xiqd[v]
+            xa=xi #para poder usar como coordenada na hora de desenhar a linha que liga os vetores
+            
+    
+        #Se a distancia final for muito proximo da inicial da carga distribuida, recaira em divisão por zero. Esse if é para evitar divisao por zero
+        if qtd_vetores <= 1:
+            qtd_vetores=1
+
+        incremento=abs(float((valores_xfqd[v]-valores_xiqd[v])/(qtd_vetores)))
 
         #cria os vetores de força devido a carga distribuida
-        if valor_ql < 0:
+        if valores_qdy[v] < 0:
             for i in range(qtd_vetores+1):
                 canvas.create_polygon(x0+xi*a-5,yv-10,x0+xi*a, yv,x0+xi*a+5,yv-10, outline="green", width = 2, fill="white",tag="ql")
                 canvas.create_line(x0+xi*a,yv, x0+xi*a, yv-82, fill="green", width=2,tag="ql")
                 xi=xi+incremento
-                
+                    
             #Desenha a linha horizontal que liga todos os vetores de carga distribuida    
-            canvas.create_line(x0+valor_qlxi*a,yv-82, x0+valor_qlxf*a, yv-82, fill="green", width=2,tag="ql")
-        elif valor_ql >0:
+            canvas.create_line(x0+xa*a,yv-82, x0+(xi-incremento)*a, yv-82, fill="green", width=2,tag="ql")
+        elif valores_qdy[v] >0:
             for i in range(qtd_vetores+1):
                 canvas.create_polygon(x0+xi*a-5,yv+10,x0+xi*a, yv,x0+xi*a+5,yv+10, outline="green", width = 2, fill="white",tag="ql")
                 canvas.create_line(x0+xi*a,yv, x0+xi*a, yv+82, fill="green", width=2,tag="ql")
                 xi=xi+incremento
-                
+                    
             #Desenha a linha horizontal que liga todos os vetores de carga distribuida    
-            canvas.create_line(x0+valor_qlxi*a,yv+82, x0+valor_qlxf*a, yv+82, fill="green", width=2,tag="ql")
-
-    else:
-        canvas.delete("ql")
-
-
+            canvas.create_line(x0+xa*a,yv+82, x0+(xi-incremento)*a, yv+82, fill="green", width=2,tag="ql")
+    
+    if delete=="yes":
+             canvas.delete("ql")
+            
 
 ###########################################################################
 ##Função que mostra o grafico e e chama as funcoes que desenham as cargas##
@@ -141,14 +326,16 @@ def desenha():
     canvas.grid(column=6, row=0, padx=10, pady=10, rowspan=10,columnspan=3)
     
     #Inicializa e mostra os botoes que irao chamar as funções para exibir as cargas pontuais ou distribuida
-    botao_qp = Button(frame_grafico, text="Cargas Pontuais", command=lambda: desenha_qp(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_dist))
-    botao_ql = Button(frame_grafico, text="Cargas Distribuidas", command=lambda: desenha_ql(valor_ql,valor_qlxi,valor_qlxf,valor_dist))
-    botao_reacao = Button(frame_grafico, text="Reação", command=lambda: forca_reacao(valor_x1,valor_x2,valor_x3,valor_x4,valor_x5,valor_q1,valor_q2,valor_q3,valor_q4,valor_q5,valor_ql,valor_qlxi,valor_qlxf,valor_dist))
+    botao_qp = Button(frame_grafico, text="Cargas Pontuais", command=desenha_qp)
+    botao_qd = Button(frame_grafico, text="Cargas Distribuidas", command=desenha_qd)
+    botao_reacao = Button(frame_grafico, text="Reação", command=forca_reacao)
+    frame_grafico.grid(row=0, column=6, sticky="news", padx=10, pady=10,rowspan=11)
     botao_qp.grid(column=6, row=10, padx=10, pady=10)
-    botao_ql.grid(column=7, row=10, padx=10, pady=10)
+    botao_qd.grid(column=7, row=10, padx=10, pady=10)
     botao_reacao.grid(column=8, row=10, padx=10, pady=10)
+    botao_sair.grid(column=8, row=11, padx=10, pady=10)
 
-    return botao_qp, botao_ql, botao_reacao
+    return botao_qp, botao_qd, botao_reacao
 
 #########################################################  
 #Funcao que lista as cargas já fornecidas pelo usuario###
@@ -300,8 +487,10 @@ def valida_entrada(tipo, lista):
                 elif max(valores_xfqd) > float(coord_dx_entry.get()):
                     messagebox.showerror(title="Info", message="A Viaga não abrange todas as cargas aplicadas.\nAumente o tamanho da viga ou remova as cargas que estão fora.")
                     return False
+
+            botao_qp, botao_ql, botao_reacao = desenha()    
+            desabilita_entradas(botao_qp, botao_ql, botao_reacao)
             
-            desenha()
 
 
 ###################################
@@ -405,8 +594,8 @@ qdxi_entry = Entry(frame_qd, width=10, textvariable=qdxi_default)
 qdxf_entry = Entry(frame_qd, width=10, textvariable=qdxf_default)
 
 texto_qd=Label(frame_qd, text="Carga:")
-texto_qd_fxi=Label(frame_qd, text="Fxi (N)")
-texto_qd_fyi=Label(frame_qd, text="Fyi (N)")
+texto_qd_fxi=Label(frame_qd, text="Fxi (N/m)")
+texto_qd_fyi=Label(frame_qd, text="Fyi (N/m)")
 texto_qd_xi=Label(frame_qd, text="X inicial")
 texto_qd_xf=Label(frame_qd, text="X final")
 
@@ -459,16 +648,10 @@ texto_apoio_d.grid(row=5, column=3, padx=5, pady=5)
 coord_ex_entry.grid(row=5, column=1, padx=5, pady=5)
 coord_dx_entry.grid(row=5, column=4, padx=5, pady=5)
 
-botao_insere_apoio = Button(frame_apoios, text="Inserir", command=lambda: valida_entrada("apoio",qd))
+botao_insere_apoio = Button(frame_apoios, text="Desenhar viga", command=lambda: valida_entrada("apoio",qd))
 botao_insere_apoio.grid(column=5, row=5, padx=10, pady=10)
 
 #Frame ETC
-botao_calcular = Button(frame_etc, text="Calcular", command=valida_entrada)
-botao_calcular.grid(column=1, row=7, padx=10, pady=10)
-
-botao_sair = Button(master=frame_etc, text="Sair", command=main.destroy)
-botao_sair.grid(column=2, row=7, padx=10, pady=10)
-
 relacao_qp=Label(frame_etc, textvariable="")
 relacao_qp.grid(column=0, row=8, padx=10, pady=10)
 
@@ -478,6 +661,9 @@ relacao_qd.grid(column=0, row=9, padx=10, pady=10)
 #Frame grafico
 #Tela de desenhos
 canvas = Canvas(frame_grafico, width=wc, height=hc, bg="white")
+
+botao_sair = Button(master=frame_grafico, text="Sair", command=main.destroy)
+
 
 
 
