@@ -7,7 +7,6 @@ from pkg_resources import resource_filename
 ##Força de reação dos apoios##
 ##############################
 def forca_reacao():
-    delete="no"
     x0=37
     xf=412
     yb=hc-hc/3
@@ -17,7 +16,8 @@ def forca_reacao():
 
     #se já tinha algo desenhado, armazena variavel para limpar tudo ao final
     if canvas.gettags("reacao"):
-        delete="yes"
+        canvas.delete("reacao")
+        return False
     
     fey=0.0 #força resultante em y, no apoio esquerdo devido as cargas pontuais
     fdy=0.0 #força resultante em y, no apoio direito devido as cargas pontuais
@@ -93,11 +93,7 @@ def forca_reacao():
     elif fdy>0:
         canvas.create_polygon(x0+valor_dist*a-10,yb,x0+valor_dist*a, yv,x0+valor_dist*a+10,yb, outline="red", width = 2, fill="white",tag="reacao")
         canvas.create_line(x0+valor_dist*a,yb, x0+valor_dist*a, yv+82, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+valor_dist*a+5, yv+95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
-    
-    #se já tinha algo desenhado, remove as forças
-    if delete == "yes":
-        canvas.delete("reacao")
+        canvas.create_text(x0+valor_dist*a+5, yv+95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")     
 
 ####################################################################
 ##Função que habilita novas entradas, para permitir novos calculos##
@@ -171,51 +167,34 @@ def desenha_qp():
 
     x0=37
     xf=412
-    yb=hc-hc/3
+    yb=hc-hc/3 #hc é definida na função princial. É a altura do canvas
     yv=yb-22
-    valor_dist=float(coord_ex_entry.get())-float(coord_dx_entry.get())
+    valor_dist=float(coord_dx_entry.get())-float(coord_ex_entry.get())
     a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
 
-    #se já tinha algo desenhado, não faz nada e entra na condição else, que retira os vetores do desenho
-    if not canvas.gettags("qp"):
-        #esses ifs são para verificar se as cargas pontuais são maiores que zero para desenhar a seta no sentido correto
-        if valor_q1<0:
-            canvas.create_polygon(x0+valor_x1*a-10,yv-20,x0+valor_x1*a, yv,x0+valor_x1*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x1*a,yv-20, x0+valor_x1*a, yv-82, fill="blue", width=2,tags="qp")
-        elif valor_q1>0:
-            canvas.create_polygon(x0+valor_x1*a-10,yb,x0+valor_x1*a, yv,x0+valor_x1*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x1*a,yb, x0+valor_x1*a, yv+82, fill="blue", width=2,tags="qp")
-
-        if valor_q2<0:
-            canvas.create_polygon(x0+valor_x2*a-10,yv-20,x0+valor_x2*a, yv,x0+valor_x2*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x2*a,yv-20, x0+valor_x2*a, yv-82, fill="blue", width=2,tags="qp")
-        elif valor_q2>0:
-            canvas.create_polygon(x0+valor_x2*a-10,yb,x0+valor_x2*a, yv,x0+valor_x2*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x2*a,yb, x0+valor_x2*a, yv+82, fill="blue", width=2,tags="qp")
-
-        if valor_q3<0:
-            canvas.create_polygon(x0+valor_x3*a-10,yv-20,x0+valor_x3*a, yv,x0+valor_x3*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x3*a,yv-20, x0+valor_x3*a, yv-82, fill="blue", width=2,tags="qp")
-        elif valor_q3>0:
-            canvas.create_polygon(x0+valor_x3*a-10,yb,x0+valor_x3*a, yv,x0+valor_x3*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x3*a,yb, x0+valor_x3*a, yv+82, fill="blue", width=2,tags="qp")
-
-        if valor_q4<0:
-            canvas.create_polygon(x0+valor_x4*a-10,yv-20,x0+valor_x4*a, yv,x0+valor_x4*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x4*a,yv-20, x0+valor_x4*a, yv-82, fill="blue", width=2,tags="qp")
-        elif valor_q4>0:
-            canvas.create_polygon(x0+valor_x4*a-10,yb,x0+valor_x4*a, yv,x0+valor_x4*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x4*a,yb, x0+valor_x4*a, yv+82, fill="blue", width=2,tags="qp")
-
-        if valor_q5<0:
-            canvas.create_polygon(x0+valor_x5*a-10,yv-20,x0+valor_x5*a, yv,x0+valor_x5*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x5*a,yv-20, x0+valor_x5*a, yv-82, fill="blue", width=2,tags="qp")
-        elif valor_q5>0:
-            canvas.create_polygon(x0+valor_x5*a-10,yb,x0+valor_x5*a, yv,x0+valor_x5*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valor_x5*a,yb, x0+valor_x5*a, yv+82, fill="blue", width=2,tags="qp")
-    else:
+    #verifica se já tinha algo desenhado para poder apagar ao final
+    if canvas.gettags("qp"):
         canvas.delete("qp")
+        return False
 
+    valores_qpx = []
+    valores_qpy = []
+    valores_xiqp = []
+
+    #coloca dentro das listas, apenas a força em x, em y, xi e o x de atuação das cargas pontuais
+    for i in range(0,len(qp),3):
+        valores_qpx.append(qp[i])
+        valores_qpy.append(qp[i+1])
+        valores_xiqp.append(qp[i+2])
+    
+    for i in range(len(valores_qpy)):
+        #esses ifs são para verificar se as cargas pontuais são maiores que zero para desenhar a seta no sentido correto
+        if valores_qpy[i]<0:
+            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv-20,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yv-20, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valores_xiqp[i]*a,yv-20, x0+valores_xiqp[i]*a, yv-82, fill="blue", width=2,tags="qp")
+        elif valores_qpy[i]>0:
+            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yb,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yb, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+valores_xiqp[i]*a,yb, x0+valores_xiqp[i]*a, yv+82, fill="blue", width=2,tags="qp")
 
 ##################################
 ##Desenha as cargas distribuidas##
@@ -226,7 +205,6 @@ def desenha_qd():
     yb=hc-hc/3
     yv=yb-22
     valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
-    delete="no"
 
     espacamento_vetores=50 #espaçamento entre vetores em pixel
     a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
@@ -238,7 +216,9 @@ def desenha_qd():
 
     #se já tinha algo desenhado, no final apaga tudo  
     if canvas.gettags("ql"):
-        delete="yes"
+        canvas.delete("ql")
+        return False
+
 
     for i in range(0,len(qd),4):
         valores_qdx.append(qd[i])
@@ -282,10 +262,7 @@ def desenha_qd():
                 xi=xi+incremento
                     
             #Desenha a linha horizontal que liga todos os vetores de carga distribuida    
-            canvas.create_line(x0+xa*a,yv+82, x0+(xi-incremento)*a, yv+82, fill="green", width=2,tag="ql")
-    
-    if delete=="yes":
-             canvas.delete("ql")
+            canvas.create_line(x0+xa*a,yv+82, x0+(xi-incremento)*a, yv+82, fill="green", width=2,tag="ql")          
             
 
 ###########################################################################
