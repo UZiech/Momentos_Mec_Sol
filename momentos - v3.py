@@ -103,9 +103,9 @@ def forca_reacao():
         canvas.create_line(x0,yv, x0+50, yv, fill="red", width=2,tags="reacao") 
         canvas.create_text(x0+45, yv+15, text=fexr_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")  #escreve o valor da força de reação
     elif fexr>0:
-        canvas.create_polygon(x0-10,yb,x0, yv,x0+10,yb, outline="red", width = 2, fill="white",tag="reacao")
-        canvas.create_line(x0,yb, x0, yv+82, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+5, yv+95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
+        canvas.create_polygon(x0,yv,x0-10, yv-10,x0-10,yv+10, outline="red", width = 2, fill="white",tag="reacao") #cria a seta para a esquerda
+        canvas.create_line(x0,yv, x0-50, yv, fill="red", width=2,tags="reacao") 
+        canvas.create_text(x0-45, yv+15, text=fexr_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")  #escreve o valor da força de reação
 
 
     # desenha a força resultante em y no apoio esquerdo  
