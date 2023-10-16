@@ -18,12 +18,16 @@ def forca_reacao():
         canvas.delete("reacao")
         return False
     
+    fex=0.0 #força resultante em x, no apoio esquerdo devido as cargas pontuais. Nao existira essa força no apoio direito, uma vez que é uma poio de 1º genero
     fey=0.0 #força resultante em y, no apoio esquerdo devido as cargas pontuais
     fdy=0.0 #força resultante em y, no apoio direito devido as cargas pontuais
+    fexd=0.0 #força resultante em x, no apoio esquerdo devido as cargas distribuidas. Nao existira essa força no apoio direito, uma vez que é uma poio de 1º genero
     feyd=0.0  #força resultante em y, no apoio esquero devido as cargas distribuidas
     fdyd=0.0  #força resultante em y, no apoio direito devido as cargas distribuidas
     Frql=0.0 #força resultante em toda a extensao da forca distribuida
-    soma_fdy=0.0 #somatorio da força distribuidam aplicada no ponto de efetiva aplicacao da forca distribuida
+    soma_fdy=0.0 #somatorio da força distribuida em y, aplicada no ponto de efetiva aplicacao da forca distribuida
+    soma_fdx=0.0 #somatorio da força distribuida em x, aplicada no ponto de efetiva aplicacao da forca distribuida
+
 
     valores_qdx = []
     valores_qdy = []
@@ -50,49 +54,81 @@ def forca_reacao():
     #calcula o valor da força resultante devido às cargas distribuidas
     for i in range(len(valores_qdy)):
         dql=abs(valores_xfqd[i]-valores_xiqd[i]) #distancia pela qual há ação da carga distribuida
-        Frql=float(valores_qdy[i]*dql)         #forca resultande devido a carga distribuida
+        Frql=float(valores_qdy[i]*dql)         #forca resultande em y devido a carga distribuida
+        Frqlx=float(valores_qdx[i]*dql)         #forca resultande em x devido a carga distribuida
         soma_fdy=soma_fdy+Frql
+        soma_fdx=soma_fdx+Frqlx        #a soma das forças em x devido as cargas distribuida pode ser colocado no loop das forças atuantes no eixo y, pois as listas de força em y e força em x tem a mesma dimensao
         xefql=valores_xiqd[i]+dql/2    #local efetivo de aplicacao da forca resultante da carga distribuida
-        feyd=feyd-(valor_dist-xefql)*Frql
+        feyd=feyd-(valor_dist-xefql)*Frql  #somatorio dos momentos, devido a aplicacao das forca resultande no ponto de aplicacao da força, devido a carga distribuida
 
     feyd=feyd/valor_dist
     fdyd=-(feyd+soma_fdy)
+    fexd=soma_fdx
 
     #Calculo do momento devido às cargas pontuais
     #somatorio dos momentos deve ser igual a zero. Fazendo em relação ao ponto direito e resolvendo para fey
     for j in range(len(valores_qpy)):
-        fey = fey+(valor_dist-valores_xiqp[j])*valores_qpy[j]
-        #fey = -((valor_dist-valor_x1)*valor_q1 + (valor_dist-valor_x2)*valor_q2 + (valor_dist-valor_x3)*valor_q4 + (valor_dist-valor_x4)*valor_q4 + (valor_dist-valor_x5)*valor_q5+(valor_dist-xefql)*Frql)/valor_dist
+
+        #em caso de coordenadas negativas dos pontos de aplicação das forças, pega a distancia absoluta entre o ponto de aplicacao e o ponto do apoio. Caso contrario, pode ser utilizado o proprio ponto de aplicacao da forca
+        if valores_xiqp[j] < 0:
+            xi=abs(float(coord_ex_entry.get())-valores_xiqp[j])
+            xih=abs(float(coord_ex_entry.get())-valores_xiqp[j]) #para desenhar os vetores horizontais
+
+        else:
+            xi=valores_xiqp[j]
+            xih=valores_xiqp[j] #para desenhar os vetores horizontais
+
+        fex = fex + valores_qpx[j]
+        fey = fey+(valor_dist-xi)*valores_qpy[j]
+        
     fey=-(fey/valor_dist)
+
     
     #somatorio das forças deve ser igual a zero. Considerando os dois pontos de apoio direito e esquerdo, com componentes x e y
     fdy= -(fey+sum(valores_qpy))
 
-    fey=fey+feyd #fazendo fey ser a força resultante - somatorio das cargas distribuidas e pontuais
-    fdy=fdy+fdyd
+
+    fey=fey+feyd #fazendo fey ser a força resultante em y no apoio esquerdo (somatorio das cargas distribuidas e pontuais). O ideal seria uma outra variavel para facilitar a compreensão, mas aí precisaria editar o trecho do código que faz o desenho do gráfico, para fazer referencia à nova variavel.
+    fdy=fdy+fdyd #fazendo fey ser a força resultante em y no apoio direito (somatorio das cargas distribuidas e pontuais). O ideal seria uma outra variavel para facilitar a compreensão, mas aí precisaria editar o trecho do código que faz o desenho do gráfico, para fazer referencia à nova variavel.
+    fexr = -(fex + fexd) #fazendo fexr ser a força resultante em x no apoio esquerdo (somatorio das cargas distribuidas e pontuais)
 
     fey_text = str(f'{fey:.3f}') + "N"
     fdy_text = str(f'{fdy:.3f}') + "N"
+    fexr_text = str(f'{fexr:.3f}') + "N"
 
     #esses ifs são para verificar se as forças são maiores que zero para desenhar no sentido correto
-        
-    if fey<0:
-        canvas.create_polygon(x0-10,yv-20,x0, yv,x0+10,yv-20, outline="red", width = 2, fill="white",tag="reacao")
-        canvas.create_line(x0,yv-20, x0, yv-82, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+5, yv-95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
-    elif fey>0:
+    # desenha a força resultante em x no apoio esquerdo  
+    if fexr<0:
+        canvas.create_polygon(x0,yv,x0+10, yv-10,x0+10,yv+10, outline="red", width = 2, fill="white",tag="reacao") #cria a seta para a direita
+        canvas.create_line(x0,yv, x0+50, yv, fill="red", width=2,tags="reacao") 
+        canvas.create_text(x0+45, yv+15, text=fexr_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")  #escreve o valor da força de reação
+    elif fexr>0:
         canvas.create_polygon(x0-10,yb,x0, yv,x0+10,yb, outline="red", width = 2, fill="white",tag="reacao")
         canvas.create_line(x0,yb, x0, yv+82, fill="red", width=2,tags="reacao")
         canvas.create_text(x0+5, yv+95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
+
+
+    # desenha a força resultante em y no apoio esquerdo  
+    if fey<0:
+        canvas.create_polygon(x0-10,yv-20,x0, yv,x0+10,yv-20, outline="red", width = 2, fill="white",tag="reacao") #cria a seta para a direita
+        canvas.create_line(x0,yv-20, x0, yv-82, fill="red", width=2,tags="reacao")
+        canvas.create_text(x0+5, yv-95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao") #escreve o valor da força de reação
+    elif fey>0:
+        canvas.create_polygon(x0-10,yb,x0, yv,x0+10,yb, outline="red", width = 2, fill="white",tag="reacao") #cria a seta para a esquerda
+        canvas.create_line(x0,yb, x0, yv+82, fill="red", width=2,tags="reacao")
+        canvas.create_text(x0+5, yv+95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao") #escreve o valor da força de reação
+   
+    # desenha a força resultante em y no apoio direito
     if fdy<0:
         canvas.create_polygon(x0+valor_dist*a-10,yv-20,x0+valor_dist*a, yv,x0+valor_dist*a+10,yv-20, outline="red", width = 2, fill="white",tag="reacao")
         canvas.create_line(x0+valor_dist*a,yv-20, x0+valor_dist*a, yv-82, fill="red", width=2,tags="reacao")
         canvas.create_text(x0+valor_dist*a+5, yv-95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
-
     elif fdy>0:
         canvas.create_polygon(x0+valor_dist*a-10,yb,x0+valor_dist*a, yv,x0+valor_dist*a+10,yb, outline="red", width = 2, fill="white",tag="reacao")
         canvas.create_line(x0+valor_dist*a,yb, x0+valor_dist*a, yv+82, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+valor_dist*a+5, yv+95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")     
+        canvas.create_text(x0+valor_dist*a+5, yv+95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
+
+         
 
 ####################################################################
 ##Função que habilita novas entradas, para permitir novos calculos##
