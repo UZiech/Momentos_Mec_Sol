@@ -185,22 +185,32 @@ def desenha_qp():
         valores_xiqp.append(qp[i+2])
     
     for i in range(len(valores_qpy)):
+
+        #em caso de coordenadas negativas das forças, faz a proporcionalidade para iniciar os desenhos em cima do ponto de apoio da esquerda
+        if valores_xiqp[i] < 0:
+            xi=abs(float(coord_ex_entry.get())-valores_xiqp[i])
+            xih=abs(float(coord_ex_entry.get())-valores_xiqp[i]) #para desenhar os vetores horizontais
+
+        else:
+            xi=valores_xiqp[i]
+            xih=valores_xiqp[i] #para desenhar os vetores horizontais
+
        
         #esses ifs são para verificar se as cargas pontuais são maiores que zero para desenhar a seta no sentido correto
         #desenha os vetores das forças em y
         if valores_qpy[i]<0:
-            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv-10,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yv-10, outline="skyblue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valores_xiqp[i]*a,yv-10, x0+valores_xiqp[i]*a, yv-50, fill="skyblue", width=2,tags="qp")
+            canvas.create_polygon(x0+xi*a-10,yv-10,x0+xi*a, yv,x0+xi*a+10,yv-10, outline="skyblue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+xi*a,yv-10, x0+xi*a, yv-50, fill="skyblue", width=2,tags="qp")
         elif valores_qpy[i]>0:
-            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv+10,x0+valores_xiqp[i]*a, yv,x0+valores_xiqp[i]*a+10,yv+10, outline="skyblue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valores_xiqp[i]*a,yv+10, x0+valores_xiqp[i]*a, yv+50, fill="skyblue", width=2,tags="qp")
+            canvas.create_polygon(x0+xi*a-10,yv+10,x0+xi*a, yv,x0+xi*a+10,yv+10, outline="skyblue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+xi*a,yv+10, x0+xi*a, yv+50, fill="skyblue", width=2,tags="qp")
         #desenha os vetores das forças em y
         if valores_qpx[i]<0:
-            canvas.create_polygon(x0+valores_xiqp[i]*a+10 , yv-10 , x0+valores_xiqp[i]*a+10 , yv+10 , x0+valores_xiqp[i]*a, yv, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valores_xiqp[i]*a,yv, x0+valores_xiqp[i]*a+50, yv, fill="blue", width=2,tags="qp")
+            canvas.create_polygon(x0+xih*a+10 , yv-10 , x0+xih*a+10 , yv+10 , x0+xih*a, yv, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+xih*a,yv, x0+xih*a+50, yv, fill="blue", width=2,tags="qp")
         elif valores_qpx[i]>0:
-            canvas.create_polygon(x0+valores_xiqp[i]*a-10,yv-10,x0+valores_xiqp[i]*a-10, yv+10, x0+valores_xiqp[i]*a,yv, outline="blue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+valores_xiqp[i]*a,yv, x0+valores_xiqp[i]*a-50, yv, fill="blue", width=2,tags="qp")    
+            canvas.create_polygon(x0+xih*a-10,yv-10,x0+xih*a-10, yv+10, x0+xih*a,yv, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+xih*a,yv, x0+xih*a-50, yv, fill="blue", width=2,tags="qp")    
 
 ##################################
 ##Desenha as cargas distribuidas##
@@ -239,9 +249,12 @@ def desenha_qd():
         #em caso de coordenadas negativas das forças, faz a proporcionalidade para iniciar os desenhos em cima do ponto de apoio da esquerda
         if valores_xiqd[v] < 0:
             xi=abs(float(coord_ex_entry.get())-valores_xiqd[v])
+            xih=abs(float(coord_ex_entry.get())-valores_xiqd[v]) #para desenhar os vetores horizontais
+
             xa=xi #para poder usar como coordenada na hora de desenhar a linha que liga os vetores
         else:
             xi=valores_xiqd[v]
+            xih=valores_xiqd[v] #para desenhar os vetores horizontais
             xa=xi #para poder usar como coordenada na hora de desenhar a linha que liga os vetores
             
     
@@ -249,9 +262,9 @@ def desenha_qd():
         if qtd_vetores <= 1:
             qtd_vetores=1
 
-        incremento=abs(float((valores_xfqd[v]-valores_xiqd[v])/(qtd_vetores)))
+        incremento=abs(float((valores_xfqd[v]-valores_xiqd[v])/(qtd_vetores))) #incremento para pula a coordenda x de vetor em vetor
 
-        #cria os vetores de força devido a carga distribuida
+        #cria os vetores de força em y devido a carga distribuida
         if valores_qdy[v] < 0:
             for i in range(qtd_vetores+1):
                 canvas.create_polygon(x0+xi*a-5,yv-10,x0+xi*a, yv,x0+xi*a+5,yv-10, outline="green", width = 2, fill="white",tag="ql")
@@ -267,7 +280,22 @@ def desenha_qd():
                 xi=xi+incremento
                     
             #Desenha a linha horizontal que liga todos os vetores de carga distribuida    
-            canvas.create_line(x0+xa*a,yv+82, x0+(xi-incremento)*a, yv+82, fill="green", width=2,tag="ql")          
+            canvas.create_line(x0+xa*a,yv+82, x0+(xi-incremento)*a, yv+82, fill="green", width=2,tag="ql")
+      
+        incremento=abs(float((valores_xfqd[v]-valores_xiqd[v])/(qtd_vetores))) #incremento para pula a coordenda x de vetor em vetor
+       
+        #cria os vetores de força em x devido a carga distribuida
+        if valores_qdx[v] < 0:
+            for i in range(qtd_vetores+1):
+                canvas.create_polygon(x0+xih*a,yv, x0+xih*a+5, yv+5,x0+xih*a+5,yv-5, outline="green", width = 2, fill="white",tag="ql") #seta para a esquerda
+                canvas.create_line(x0+xih*a+5,yv, x0+xih*a+50, yv, fill="green", width=2,tag="ql") #cabo do vetor para a direita
+                xih=xih+incremento
+                    
+        elif valores_qdx[v] >0:
+            for i in range(qtd_vetores+1):
+                canvas.create_polygon(x0+xih*a,yv, x0+xih*a-5, yv+5, x0+xih*a-5,yv-5, outline="green", width = 2, fill="white",tag="ql") #seta para a direita
+                canvas.create_line(x0+xih*a,yv, x0+xih*a-50, yv, fill="green", width=2,tag="ql") #cabo do vetor para a esquerda
+                xih=xih+incremento          
             
 
 ###########################################################################
