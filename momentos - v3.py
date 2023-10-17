@@ -59,9 +59,9 @@ def forca_reacao():
         soma_fdy=soma_fdy+Frql
         soma_fdx=soma_fdx+Frqlx        #a soma das forças em x devido as cargas distribuida pode ser colocado no loop das forças atuantes no eixo y, pois as listas de força em y e força em x tem a mesma dimensao
         xefql=valores_xiqd[i]+dql/2    #local efetivo de aplicacao da forca resultante da carga distribuida
-        feyd=feyd-(valor_dist-xefql)*Frql  #somatorio dos momentos, devido a aplicacao das forca resultande no ponto de aplicacao da força, devido a carga distribuida
+        feyd=feyd-(valor_dist-abs(float(coord_ex_entry.get())-xefql))*Frql  #somatorio dos momentos, devido a aplicacao das forca resultande no ponto de aplicacao da força, devido a carga distribuida
 
-    feyd=feyd/valor_dist
+    feyd=(feyd/valor_dist)
     fdyd=-(feyd+soma_fdy)
     fexd=soma_fdx
 
@@ -217,11 +217,11 @@ def desenha_qp():
         #esses ifs são para verificar se as cargas pontuais são maiores que zero para desenhar a seta no sentido correto
         #desenha os vetores das forças em y
         if valores_qpy[i]<0:
-            canvas.create_polygon(x0+xi*a-10,yv-10,x0+xi*a, yv,x0+xi*a+10,yv-10, outline="skyblue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+xi*a,yv-10, x0+xi*a, yv-50, fill="skyblue", width=2,tags="qp")
+            canvas.create_polygon(x0+xi*a-10,yv-10,x0+xi*a, yv,x0+xi*a+10,yv-10, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+xi*a,yv-10, x0+xi*a, yv-50, fill="blue", width=2,tags="qp")
         elif valores_qpy[i]>0:
-            canvas.create_polygon(x0+xi*a-10,yv+10,x0+xi*a, yv,x0+xi*a+10,yv+10, outline="skyblue", width = 2, fill="white",tag="qp")
-            canvas.create_line(x0+xi*a,yv+10, x0+xi*a, yv+50, fill="skyblue", width=2,tags="qp")
+            canvas.create_polygon(x0+xi*a-10,yv+10,x0+xi*a, yv,x0+xi*a+10,yv+10, outline="blue", width = 2, fill="white",tag="qp")
+            canvas.create_line(x0+xi*a,yv+10, x0+xi*a, yv+50, fill="blue", width=2,tags="qp")
         #desenha os vetores das forças em y
         if valores_qpx[i]<0:
             canvas.create_polygon(x0+xih*a+10 , yv-10 , x0+xih*a+10 , yv+10 , x0+xih*a, yv, outline="blue", width = 2, fill="white",tag="qp")
