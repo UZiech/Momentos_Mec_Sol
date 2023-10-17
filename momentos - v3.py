@@ -126,9 +126,7 @@ def forca_reacao():
     elif fdy>0:
         canvas.create_polygon(x0+valor_dist*a-10,yb,x0+valor_dist*a, yv,x0+valor_dist*a+10,yb, outline="red", width = 2, fill="white",tag="reacao")
         canvas.create_line(x0+valor_dist*a,yb, x0+valor_dist*a, yv+82, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+valor_dist*a+5, yv+95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
-
-         
+        canvas.create_text(x0+valor_dist*a+5, yv+95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")     
 
 ####################################################################
 ##Função que habilita novas entradas, para permitir novos calculos##
@@ -331,8 +329,7 @@ def desenha_qd():
             for i in range(qtd_vetores+1):
                 canvas.create_polygon(x0+xih*a,yv, x0+xih*a-5, yv+5, x0+xih*a-5,yv-5, outline="green", width = 2, fill="white",tag="ql") #seta para a direita
                 canvas.create_line(x0+xih*a,yv, x0+xih*a-50, yv, fill="green", width=2,tag="ql") #cabo do vetor para a esquerda
-                xih=xih+incremento          
-            
+                xih=xih+incremento                     
 
 ###########################################################################
 ##Função que mostra o grafico e e chama as funcoes que desenham as cargas##
@@ -544,8 +541,6 @@ def valida_entrada(tipo, lista):
             botao_qp, botao_ql, botao_reacao = desenha()    
             desabilita_entradas(botao_qp, botao_ql, botao_reacao)
             
-
-
 ###################################
 ##Função Main - Interface Gráfica##
 ###################################
@@ -576,6 +571,7 @@ Ulisses Sebastian Ziech - 222026770"))
 menubar.add_cascade(label="Ajuda", menu=helpmenu)
 main.config(menu=menubar)
 
+#inicializa e distribui os diversos frames. Conforme forem sendo inseridos os widgets dentro dos frames eles vão aparecendo na interface gráfica
 frame = Frame(main)
 frame.pack()
 frame_qp = LabelFrame(frame, text="Cargas Pontuais")
@@ -593,13 +589,7 @@ frame_etc.grid(row=8, column=0, sticky="news", padx=10)
 frame_grafico.grid(row=0, column=6, sticky="news", padx=10, pady=10,rowspan=11)
 
 
-#Inicia as variaveis de texto
-# info1=Label(main, text="Forneça apenas valores numéricos com separador decimal sendo o ponto.")
-# info2 = Label(main, text="Distância entre os pontos de apoio em metros.")
-# info3 = Label(main, text="", font="Arial", fg="red")
-
 #Carga pontual
-
 qp=[]
 
 qpfx_default = StringVar()
@@ -633,7 +623,6 @@ botao_insere_qp.grid(column=5, row=1, padx=10, pady=10)
 
 
 #Carga distribuida
-
 qd=[]
 
 qdfx_default = StringVar()
@@ -708,7 +697,7 @@ coord_dx_entry.grid(row=5, column=4, padx=5, pady=5)
 botao_insere_apoio = Button(frame_apoios, text="Desenhar viga", command=lambda: valida_entrada("apoio",qd))
 botao_insere_apoio.grid(column=5, row=5, padx=10, pady=10)
 
-#Frame ETC
+#Frame ETC. Nesse frame que serão listadas as cargas que forem sendo adicionadas - funções envolvidas: listar_cargas que é chamada pelas funcoes remover_cargas ou valida_entrada
 relacao_qp=Label(frame_etc, textvariable="")
 relacao_qp.grid(column=0, row=8, padx=10, pady=10)
 
@@ -720,9 +709,6 @@ relacao_qd.grid(column=0, row=9, padx=10, pady=10)
 canvas = Canvas(frame_grafico, width=wc, height=hc, bg="white")
 
 botao_sair = Button(master=frame_grafico, text="Sair", command=main.destroy)
-
-
-
 
 
 main.mainloop()
