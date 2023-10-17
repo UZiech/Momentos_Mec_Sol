@@ -69,21 +69,12 @@ def forca_reacao():
     #somatorio dos momentos deve ser igual a zero. Fazendo em relação ao ponto direito e resolvendo para fey
     for j in range(len(valores_qpy)):
 
-        #em caso de coordenadas negativas dos pontos de aplicação das forças, pega a distancia absoluta entre o ponto de aplicacao e o ponto do apoio. Caso contrario, pode ser utilizado o proprio ponto de aplicacao da forca
-        if valores_xiqp[j] < 0:
-            xi=abs(float(coord_ex_entry.get())-valores_xiqp[j])
-            xih=abs(float(coord_ex_entry.get())-valores_xiqp[j]) #para desenhar os vetores horizontais
-
-        else:
-            xi=valores_xiqp[j]
-            xih=valores_xiqp[j] #para desenhar os vetores horizontais
-
+        #acha a distancia entre a coordenada do ponto de apoio esquerdo (utilizado como origem para fazer os desenhos) e o ponto de aplicação da força.
+        xi=abs(float(coord_ex_entry.get())-valores_xiqp[j])
         fex = fex + valores_qpx[j]
         fey = fey+(valor_dist-xi)*valores_qpy[j]
         
-    fey=-(fey/valor_dist)
-
-    
+    fey=-(fey/valor_dist)   
     #somatorio das forças deve ser igual a zero. Considerando os dois pontos de apoio direito e esquerdo, com componentes x e y
     fdy= -(fey+sum(valores_qpy))
 
@@ -97,7 +88,7 @@ def forca_reacao():
     fexr_text = str(f'{fexr:.3f}') + "N"
 
     #esses ifs são para verificar se as forças são maiores que zero para desenhar no sentido correto
-    # desenha a força resultante em x no apoio esquerdo  
+    # desenha a força resultante em x no apoio esquerdo. Não tem força resultante em x no ponto direito, pois o apoio é de 1º genero 
     if fexr<0:
         canvas.create_polygon(x0,yv,x0+10, yv-10,x0+10,yv+10, outline="red", width = 2, fill="white",tag="reacao") #cria a seta para a direita
         canvas.create_line(x0,yv, x0+50, yv, fill="red", width=2,tags="reacao") 
@@ -106,7 +97,6 @@ def forca_reacao():
         canvas.create_polygon(x0,yv,x0-10, yv-10,x0-10,yv+10, outline="red", width = 2, fill="white",tag="reacao") #cria a seta para a esquerda
         canvas.create_line(x0,yv, x0-50, yv, fill="red", width=2,tags="reacao") 
         canvas.create_text(x0-45, yv+15, text=fexr_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")  #escreve o valor da força de reação
-
 
     # desenha a força resultante em y no apoio esquerdo  
     if fey<0:
@@ -220,16 +210,10 @@ def desenha_qp():
     
     for i in range(len(valores_qpy)):
 
-        #em caso de coordenadas negativas das forças, faz a proporcionalidade para iniciar os desenhos em cima do ponto de apoio da esquerda
-        if valores_xiqp[i] < 0:
-            xi=abs(float(coord_ex_entry.get())-valores_xiqp[i])
-            xih=abs(float(coord_ex_entry.get())-valores_xiqp[i]) #para desenhar os vetores horizontais
-
-        else:
-            xi=valores_xiqp[i]
-            xih=valores_xiqp[i] #para desenhar os vetores horizontais
-
-       
+        #acha a distancia entre a coordenada do ponto de apoio esquerdo (utilizado como origem para fazer os desenhos) e o ponto de aplicação da força. O calculo é usado para posicionar as forças em relação ao ponto de apoio
+        xi=abs(float(coord_ex_entry.get())-valores_xiqp[i])
+        xih=abs(float(coord_ex_entry.get())-valores_xiqp[i]) #para desenhar os vetores horizontais
+     
         #esses ifs são para verificar se as cargas pontuais são maiores que zero para desenhar a seta no sentido correto
         #desenha os vetores das forças em y
         if valores_qpy[i]<0:
@@ -280,17 +264,10 @@ def desenha_qd():
         
         qtd_vetores = abs(int((valores_xfqd[v]*a-valores_xiqd[v]*a)/espacamento_vetores))
 
-        #em caso de coordenadas negativas das forças, faz a proporcionalidade para iniciar os desenhos em cima do ponto de apoio da esquerda
-        if valores_xiqd[v] < 0:
-            xi=abs(float(coord_ex_entry.get())-valores_xiqd[v])
-            xih=abs(float(coord_ex_entry.get())-valores_xiqd[v]) #para desenhar os vetores horizontais
-
-            xa=xi #para poder usar como coordenada na hora de desenhar a linha que liga os vetores
-        else:
-            xi=valores_xiqd[v]
-            xih=valores_xiqd[v] #para desenhar os vetores horizontais
-            xa=xi #para poder usar como coordenada na hora de desenhar a linha que liga os vetores
-            
+        #acha a distancia entre a coordenada do ponto de apoio esquerdo (utilizado como origem para fazer os desenhos) e o ponto de inicio de aplicação da força distribuida. O calculo é usado para posicionar as forças em relação ao ponto de apoio
+        xi=abs(float(coord_ex_entry.get())-valores_xiqd[v])
+        xih=abs(float(coord_ex_entry.get())-valores_xiqd[v]) #para desenhar os vetores horizontais
+        xa=xi #para poder usar como coordenada na hora de desenhar a linha que liga os vetores            
     
         #Se a distancia final for muito proximo da inicial da carga distribuida, recaira em divisão por zero. Esse if é para evitar divisao por zero
         if qtd_vetores <= 1:
@@ -500,6 +477,11 @@ def valida_entrada(tipo, lista):
             #verifica se a coordenada esquerda é maior que a direita.
             if float(coord_ex_entry.get()) > float(coord_dx_entry.get()) :
                 messagebox.showerror(title="Info", message="Corrija o posicionamento dos pontos de apoio. Estão trocados")
+                return False
+            
+            #verifica se a coordenada esquerda é a mesma que a direita.
+            if float(coord_ex_entry.get()) == float(coord_dx_entry.get()) :
+                messagebox.showerror(title="Info", message="A coordenada esquerda e a direita não podem ser iguais.")
                 return False
             
             if (len(qp) == 0) and (len(qd) == 0):
