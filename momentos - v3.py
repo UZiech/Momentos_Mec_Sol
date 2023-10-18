@@ -8,7 +8,7 @@ from pkg_resources import resource_filename
 ##############################
 def forca_reacao():
 
-    yb=hc-hc/3
+    yb=hc-y0
     yv=yb-22
     valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
     a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
@@ -96,27 +96,27 @@ def forca_reacao():
     elif fexr>0:
         canvas.create_polygon(x0,yv,x0-10, yv-10,x0-10,yv+10, outline="red", width = 2, fill="white",tag="reacao") #cria a seta para a esquerda
         canvas.create_line(x0,yv, x0-50, yv, fill="red", width=2,tags="reacao") 
-        canvas.create_text(x0-45, yv+15, text=fexr_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")  #escreve o valor da força de reação
+        canvas.create_text(x0-20, yv-15, text=fexr_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")  #escreve o valor da força de reação
 
     # desenha a força resultante em y no apoio esquerdo  
     if fey<0:
         canvas.create_polygon(x0-10,yv-20,x0, yv,x0+10,yv-20, outline="red", width = 2, fill="white",tag="reacao") #cria a seta para a direita
-        canvas.create_line(x0,yv-20, x0, yv-82, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+5, yv-95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao") #escreve o valor da força de reação
+        canvas.create_line(x0,yv-20, x0, yv-50, fill="red", width=2,tags="reacao")
+        canvas.create_text(x0+5, yv-50, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao") #escreve o valor da força de reação
     elif fey>0:
         canvas.create_polygon(x0-10,yb,x0, yv,x0+10,yb, outline="red", width = 2, fill="white",tag="reacao") #cria a seta para a esquerda
-        canvas.create_line(x0,yb, x0, yv+82, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+5, yv+95, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao") #escreve o valor da força de reação
+        canvas.create_line(x0,yb, x0, yv+50, fill="red", width=2,tags="reacao")
+        canvas.create_text(x0+5, yv+50, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao") #escreve o valor da força de reação
    
     # desenha a força resultante em y no apoio direito
     if fdy<0:
         canvas.create_polygon(x0+valor_dist*a-10,yv-20,x0+valor_dist*a, yv,x0+valor_dist*a+10,yv-20, outline="red", width = 2, fill="white",tag="reacao")
-        canvas.create_line(x0+valor_dist*a,yv-20, x0+valor_dist*a, yv-82, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+valor_dist*a+5, yv-95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
+        canvas.create_line(x0+valor_dist*a,yv-20, x0+valor_dist*a, yv-50, fill="red", width=2,tags="reacao")
+        canvas.create_text(x0+valor_dist*a+5, yv-50, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
     elif fdy>0:
         canvas.create_polygon(x0+valor_dist*a-10,yb,x0+valor_dist*a, yv,x0+valor_dist*a+10,yb, outline="red", width = 2, fill="white",tag="reacao")
-        canvas.create_line(x0+valor_dist*a,yb, x0+valor_dist*a, yv+82, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+valor_dist*a+5, yv+95, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")     
+        canvas.create_line(x0+valor_dist*a,yb, x0+valor_dist*a, yv+50, fill="red", width=2,tags="reacao")
+        canvas.create_text(x0+valor_dist*a+5, yv+50, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")     
 
 ####################################################################
 ##Função que habilita novas entradas, para permitir novos calculos##
@@ -188,7 +188,7 @@ def desabilita_entradas(botao_qp, botao_ql, botao_reacao):
 ##############################
 def desenha_qp():
 
-    yb=hc-hc/3 #hc é definida na função princial, portanto, é a altura do canvas. yb é a base dos apoios
+    yb=hc-y0 #hc é definida na função princial, portanto, é a altura do canvas. yb é a base dos apoios
     yv=yb-22   #yv é a localização da barra
     valor_dist=float(coord_dx_entry.get())-float(coord_ex_entry.get())
     a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
@@ -235,7 +235,7 @@ def desenha_qp():
 ##################################
 def desenha_qd():
   
-    yb=hc-hc/3
+    yb=hc-y0
     yv=yb-22
     valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
 
@@ -279,19 +279,19 @@ def desenha_qd():
         if valores_qdy[v] < 0:
             for i in range(qtd_vetores+1):
                 canvas.create_polygon(x0+xi*a-5,yv-10,x0+xi*a, yv,x0+xi*a+5,yv-10, outline="green", width = 2, fill="white",tag="ql")
-                canvas.create_line(x0+xi*a,yv, x0+xi*a, yv-82, fill="green", width=2,tag="ql")
+                canvas.create_line(x0+xi*a,yv, x0+xi*a, yv-60, fill="green", width=2,tag="ql")
                 xi=xi+incremento
                     
             #Desenha a linha horizontal que liga todos os vetores de carga distribuida    
-            canvas.create_line(x0+xa*a,yv-82, x0+(xi-incremento)*a, yv-82, fill="green", width=2,tag="ql")
+            canvas.create_line(x0+xa*a,yv-60, x0+(xi-incremento)*a, yv-60, fill="green", width=2,tag="ql")
         elif valores_qdy[v] >0:
             for i in range(qtd_vetores+1):
                 canvas.create_polygon(x0+xi*a-5,yv+10,x0+xi*a, yv,x0+xi*a+5,yv+10, outline="green", width = 2, fill="white",tag="ql")
-                canvas.create_line(x0+xi*a,yv, x0+xi*a, yv+82, fill="green", width=2,tag="ql")
+                canvas.create_line(x0+xi*a,yv, x0+xi*a, yv+60, fill="green", width=2,tag="ql")
                 xi=xi+incremento
                     
             #Desenha a linha horizontal que liga todos os vetores de carga distribuida    
-            canvas.create_line(x0+xa*a,yv+82, x0+(xi-incremento)*a, yv+82, fill="green", width=2,tag="ql")
+            canvas.create_line(x0+xa*a,yv+60, x0+(xi-incremento)*a, yv+60, fill="green", width=2,tag="ql")
       
         incremento=abs(float((valores_xfqd[v]-valores_xiqd[v])/(qtd_vetores))) #incremento para pula a coordenda x de vetor em vetor
        
@@ -313,10 +313,9 @@ def desenha_qd():
 ###########################################################################
 def desenha():
     #coordenadas de posicionamento do desenho
-    yb=hc-hc/3 #coordenada da parte de baixo da base
+    yb=hc-y0 #coordenada da parte de baixo da base
     yv=yb-22 #coordenada vertical da barra
     xv=x0-12 #coordenada do ponto de apoio esquerdo na linha da viga(origem)
-    valor_dist=float(coord_ex_entry.get())-float(coord_dx_entry.get())
 
     #Desenha os pontos de apoio - primeiro o da esquereda, depois o da direita e depois a viga
     #Desenho do apoio da esquerda - segundo genero
@@ -533,11 +532,13 @@ main.iconbitmap(resource1)
 
 #dimensoes da area de desenho
 wc=500
-hc=300
+hc=500
 
 #margem esquerda e direita no grafico para inicio dos desenhos
 x0=60
 xf=440
+#margem inferior no grafico para inicio dos desenhos
+y0=60
 
 #Menu
 menubar = Menu(main)
@@ -574,9 +575,9 @@ frame_grafico.grid(row=0, column=6, sticky="news", padx=10, pady=10,rowspan=11)
 #Carga pontual
 qp=[]
 
-qpfx_default = StringVar()
-qpfy_default = StringVar()
-qpxi_default = StringVar()
+qpfx_default = StringVar() #cargca pontual forca em x
+qpfy_default = StringVar() #cargca pontual forca em y
+qpxi_default = StringVar() #cargca pontual posicao x
 
 qpfx_default.set("0.00")
 qpfy_default.set("0.00")
@@ -607,10 +608,10 @@ botao_insere_qp.grid(column=5, row=1, padx=10, pady=10)
 #Carga distribuida
 qd=[]
 
-qdfx_default = StringVar()
-qdfy_default = StringVar()
-qdxi_default = StringVar()
-qdxf_default = StringVar()
+qdfx_default = StringVar() #carga distribuida forca em x
+qdfy_default = StringVar() #carga distribuida forca em y
+qdxi_default = StringVar() #carga distribuida inicio da força em x
+qdxf_default = StringVar() #carga distribuida fim da força em x
 qdfx_default.set("0.00")
 qdfy_default.set("0.00")
 qdxi_default.set("0.00")
@@ -645,9 +646,9 @@ botao_insere_qd.grid(column=5, row=3, padx=10, pady=10)
 texto_remover=Label(frame_remover_cargas, text="Carga número:")
 texto_remover.grid(row=4,column=0)
 
-carga_default = StringVar()
+carga_default = StringVar() #numero da carga a ser removida
 carga_default.set("1")
-carga_tipo_default = StringVar()
+carga_tipo_default = StringVar() #tipo de carga a ser removida
 carga_tipo_default.set("Carga pontual")
 
 carga_entry = Entry(frame_remover_cargas,width=10, textvariable=carga_default)
@@ -660,8 +661,8 @@ botao_remover = Button(frame_remover_cargas, text="Remover", command=lambda: val
 botao_remover.grid(column=5, row=4, padx=10, pady=10)
 
 #Apoios
-coord_ex_default = StringVar()
-coord_dx_default = StringVar()
+coord_ex_default = StringVar() #coordenada x do ponto de apoio esquerdo
+coord_dx_default = StringVar() #coordenada x do ponto de apoio direit
 coord_ex_default.set("0.00")
 coord_dx_default.set("2.00")
 
