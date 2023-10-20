@@ -3,6 +3,96 @@ from tkinter import messagebox
 from tkinter import ttk
 from pkg_resources import resource_filename
 
+###########################
+##Diagrama forca cortante##
+###########################
+def diagrama_cortante():
+    yb=150
+    yv=yb-60
+    valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
+    a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
+
+    fey=0.0 #força resultante em y, no apoio esquerdo devido as cargas pontuais
+    fdy=0.0 #força resultante em y, no apoio direito devido as cargas pontuais
+    feyd=0.0  #força resultante em y, no apoio esquero devido as cargas distribuidas
+    fdyd=0.0  #força resultante em y, no apoio direito devido as cargas distribuidas
+    Frql=0.0 #força resultante em toda a extensao da forca distribuida
+    soma_fdy=0.0 #somatorio da força distribuida em y, aplicada no ponto de efetiva aplicacao da forca distribuida
+
+    valores_qdy = []
+    valores_xiqd = []
+    valores_xfqd = []
+
+    valores_qpy = []
+    valores_xiqp = []
+
+    #coloca dentro das listas, apenas a força em y, xi e xf que estão dentro da lista qd que são as cargas fornecidas pelo usuario
+    for i in range(0,len(qd),4):
+        valores_qdy.append(qd[i+1])
+        valores_xiqd.append(qd[i+2])
+        valores_xfqd.append(qd[i+3])
+
+       # cortante = 
+
+    #coloca dentro das listas, apenas a força em y, xi e o x de atuação das cargas pontuais
+    for i in range(0,len(qp),3):
+        valores_qpy.append(qp[i+1])
+        valores_xiqp.append(qp[i+2])
+    
+    #calcula o valor da força resultante devido às cargas distribuidas
+    for i in range(len(valores_qdy)):
+        dql=abs(valores_xfqd[i]-valores_xiqd[i]) #distancia pela qual há ação da carga distribuida
+        Frql=float(valores_qdy[i]*dql)         #forca resultande em y devido a carga distribuida
+        soma_fdy=soma_fdy+Frql
+        xefql=valores_xiqd[i]+dql/2    #local efetivo de aplicacao da forca resultante da carga distribuida
+        feyd=feyd-(valor_dist-abs(float(coord_ex_entry.get())-xefql))*Frql  #somatorio dos momentos, devido a aplicacao das forca resultande no ponto de aplicacao da força, devido a carga distribuida
+
+    feyd=(feyd/valor_dist)
+    fdyd=-(feyd+soma_fdy)
+
+
+    #Calculo do momento devido às cargas pontuais
+    #somatorio dos momentos deve ser igual a zero. Fazendo em relação ao ponto direito e resolvendo para fey
+    for j in range(len(valores_qpy)):
+
+        #acha a distancia entre a coordenada do ponto de apoio esquerdo (utilizado como origem para fazer os desenhos) e o ponto de aplicação da força.
+        xi=abs(float(coord_ex_entry.get())-valores_xiqp[j])
+        fey = fey+(valor_dist-xi)*valores_qpy[j]
+    
+        
+    fey=-(fey/valor_dist)   
+    #somatorio das forças deve ser igual a zero. Considerando os dois pontos de apoio direito e esquerdo, com componentes x e y
+    fdy= -(fey+sum(valores_qpy))
+
+
+    fcortante_e=fey+feyd 
+    fcortante_d=fdy+fdyd 
+
+    #se não tiver força de reação nos apoios, significa que não tem carga vertical liquida
+    if (fcortante_e == 0) and (fcortante_d == 0):
+        return False
+
+    # valores_xiqp.insert(0,float(coord_ex_entry.get()))
+    # valores_xiqp.append(0,float(coord_dx_entry.get()))
+
+    b = abs(max(abs(fcortante_e),abs(fcortante_d)))/50 # proporcao para fazer o desenho do diagrama e sempre considerar a maior forca como o ponto maximo do desenho
+
+    canvas.create_line(x0,yv-50, xf, yv-50, dash=(10,10), tags="cortante")
+    canvas.create_line(x0,yv-25, xf, yv-25, tags="cortante")
+    canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="cortante")
+    canvas.create_text(x0, yv-60, text="Diagrama de esforço cortante", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="cortante")  
+
+    #comeca a desenhar o diagrama da forca cortante, começando pelo ponto de apoio esquerdo
+    for i in range(len(valores_xiqp)):
+
+        xi=abs(float(coord_ex_entry.get())-valores_xiqp[i])
+        if fey<0:
+            canvas.create_line(x0+xi*a,yv-50, x0+xi*a, yv+(valores_xiqp[i]*valores_qpy[i]+fey)*b, fill="red", width=2,tags="cortante")
+
+        elif fey>0:
+            canvas.create_line(x0+xi*a,yv-50, x0+xi*a, yv+(valores_xiqp[i]*valores_qpy[i]-fey)*b, fill="red", width=2,tags="cortante")
+
+    
 ##############################
 ##Força de reação dos apoios##
 ##############################
@@ -102,21 +192,21 @@ def forca_reacao():
     if fey<0:
         canvas.create_polygon(x0-10,yv-20,x0, yv,x0+10,yv-20, outline="red", width = 2, fill="white",tag="reacao") #cria a seta para a direita
         canvas.create_line(x0,yv-20, x0, yv-50, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+5, yv-50, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao") #escreve o valor da força de reação
+        canvas.create_text(x0+5, yv-60, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao") #escreve o valor da força de reação
     elif fey>0:
         canvas.create_polygon(x0-10,yb,x0, yv,x0+10,yb, outline="red", width = 2, fill="white",tag="reacao") #cria a seta para a esquerda
         canvas.create_line(x0,yb, x0, yv+50, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+5, yv+50, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao") #escreve o valor da força de reação
+        canvas.create_text(x0+5, yv+60, text=fey_text, fill="black", font=('Helvetica 10 bold'),tag="reacao") #escreve o valor da força de reação
    
     # desenha a força resultante em y no apoio direito
     if fdy<0:
         canvas.create_polygon(x0+valor_dist*a-10,yv-20,x0+valor_dist*a, yv,x0+valor_dist*a+10,yv-20, outline="red", width = 2, fill="white",tag="reacao")
         canvas.create_line(x0+valor_dist*a,yv-20, x0+valor_dist*a, yv-50, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+valor_dist*a+5, yv-50, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
+        canvas.create_text(x0+valor_dist*a+5, yv-60, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
     elif fdy>0:
         canvas.create_polygon(x0+valor_dist*a-10,yb,x0+valor_dist*a, yv,x0+valor_dist*a+10,yb, outline="red", width = 2, fill="white",tag="reacao")
         canvas.create_line(x0+valor_dist*a,yb, x0+valor_dist*a, yv+50, fill="red", width=2,tags="reacao")
-        canvas.create_text(x0+valor_dist*a+5, yv+50, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")     
+        canvas.create_text(x0+valor_dist*a+5, yv+60, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
 
 ####################################################################
 ##Função que habilita novas entradas, para permitir novos calculos##
@@ -181,7 +271,7 @@ def desabilita_entradas(botao_qp, botao_ql, botao_reacao):
     
     #Inicialia o botao que permite inserir novos valores
     botao_novos_valores = Button(frame_grafico, text="Novos Valores", command=lambda: habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_reacao))
-    botao_novos_valores.grid(column=6, row=11, padx=10, pady=10)
+    botao_novos_valores.grid(column=6, row=10, padx=10, pady=10)
 
 ##############################
 ##Desenha as cargas pontuais##
@@ -345,17 +435,19 @@ def desenha():
     canvas.create_line(x0, yv, xf, yv, width = 4, fill="black")    
     
     #Dispões o gráfco no grid
-    canvas.grid(column=6, row=0, padx=10, pady=10, rowspan=10,columnspan=3)
+    canvas.grid(column=6, row=0, padx=10, pady=10, rowspan=10,columnspan=4)
     
     #Inicializa e mostra os botoes que irao chamar as funções para exibir as cargas pontuais ou distribuida
     botao_qp = Button(frame_grafico, text="Cargas Pontuais", command=desenha_qp)
     botao_qd = Button(frame_grafico, text="Cargas Distribuidas", command=desenha_qd)
     botao_reacao = Button(frame_grafico, text="Reação", command=forca_reacao)
+    botao_cortante = Button(frame_grafico, text="Diagrama Cortante", command=diagrama_cortante)
     frame_grafico.grid(row=0, column=6, sticky="news", padx=10, pady=10,rowspan=11)
-    botao_qp.grid(column=6, row=10, padx=10, pady=10)
-    botao_qd.grid(column=7, row=10, padx=10, pady=10)
-    botao_reacao.grid(column=8, row=10, padx=10, pady=10)
-    botao_sair.grid(column=8, row=11, padx=10, pady=10)
+    botao_qp.grid(column=7, row=10, padx=10, pady=10)
+    botao_qd.grid(column=8, row=10, padx=10, pady=10)
+    botao_reacao.grid(column=9, row=10, padx=10, pady=10)
+    botao_sair.grid(column=9, row=11, padx=10, pady=10)
+    botao_cortante.grid(column=6, row=11, padx=10, pady=10)
 
     return botao_qp, botao_qd, botao_reacao
 
@@ -430,6 +522,10 @@ def valida_entrada(tipo, lista):
             
             if float(qdxi_entry.get()) > float(qdxf_entry.get()):
                 messagebox.showerror(title="Info", message="Corrigir as coordenadas de início e fim da carga aplicada.")
+                return False
+            
+            if float(qdxi_entry.get()) == float(qdxf_entry.get()):
+                messagebox.showerror(title="Info", message="Se a carga distribuida está em um único ponto, então trata-se de uma carga pontual. Corrigir")
                 return False
 
             lista.append(float(qdfx_entry.get()))
