@@ -25,6 +25,7 @@ def diagrama_cortante():
 
     valores_qpy = []
     valores_xiqp = []
+    qpy = []
 
     #se já tinha algo desenhado, armazena variavel para limpar tudo ao final
     if canvas.gettags("cortante"):
@@ -36,8 +37,6 @@ def diagrama_cortante():
         valores_qdy.append(qd[i+1])
         valores_xiqd.append(qd[i+2])
         valores_xfqd.append(qd[i+3])
-
-       # cortante = 
 
     #coloca dentro das listas, apenas a força em y, xi e o x de atuação das cargas pontuais
     for i in range(0,len(qp),3):
@@ -70,14 +69,15 @@ def diagrama_cortante():
     fdy= -(fey+sum(valores_qpy))
 
 
-    fcortante_e=fey+feyd 
-    fcortante_d=fdy+fdyd 
+    freacao_e=fey+feyd 
+    freacao_d=fdy+fdyd
+    fcortante_e = freacao_e
 
     #se não tiver força de reação nos apoios, significa que não tem carga vertical liquida
-    if (fcortante_e == 0) and (fcortante_d == 0):
+    if (freacao_e == 0) and (freacao_d == 0):
         return False
 
-    b = 25/abs(max(abs(fcortante_e),abs(fcortante_d))) # proporcao para fazer o desenho do diagrama e sempre considerar a maior forca como o ponto maximo do desenho
+    b = 25/abs(max(abs(freacao_e),abs(freacao_d))) # proporcao para fazer o desenho do diagrama e sempre considerar a maior forca como o ponto maximo do desenho
 
     canvas.create_line(x0,yv-50, xf, yv-50, dash=(10,10), tags="cortante")
     canvas.create_line(x0,yv-25, xf, yv-25, tags="cortante")
@@ -90,30 +90,72 @@ def diagrama_cortante():
     #Passo 3: Criar uma lista que conterá as coordendas x e y da forca cortante. Essa lista sera utilizada para o canvas desenhar a linha
     #Passo 4: para o desenho sobre o ponto de apoio esquerdo, inserir os dados na lista do passo 4 fora do loop pois não é certo que sempre haverá carga nesse ponto 
     #Passo 5: varer a dupla criada com o xip e fazer as contas de força cortante para cada conjunto de valores da tupla, inserindo os dados na lista
+
     qpy=valores_qpy
     qdy=valores_qdy
     xiqp = valores_xiqp
     xiqd=valores_xiqd
     xfqd=valores_xfqd
 
-    qpy.insert(0, fcortante_e)
-    xiqp.insert(0,float(coord_ex_entry.get()))
+    for i in range(len(qdy)):
+        incremento = 0.01
+        pos = xiqd[i]
 
-    for i in range(len(valores_qpy)):
-        qdy.append(valores_qpy[i])
-        xiqd.append(valores_xiqp[i])
-        xfqd.append(valores_xiqp[i])
+        while (pos<=xfqd[i]):
+            qpy.append(qdy[i]*incremento)
+            xiqp.append(pos+incremento/2)
+            pos=pos+incremento
+
+    #ordena as listas de força e posicao com base na ordem crescrente da posicao
+    indices = list(range(len(xiqp)))
+    indices.sort(key=lambda i: xiqp[i])
+
+    qpy = [qpy[i] for i in indices]
+    xiqp = [xiqp[i] for i in indices]
+
+
+    #comeca a desenhar o diagrama da forca cortante, começando pelo ponto de apoio 
+    xi=abs(float(coord_ex_entry.get())-xiqp[0])
+    canvas.create_line(x0, yv-25,x0, yv-25+freacao_e*b, fill="red", width=2,tags="cortante")
+    canvas.create_line(x0, yv-25+freacao_e*b, x0+xi*a, yv-25+freacao_e*b, fill="red", width=2,tags="cortante")
+
+
+    for i in range(len(qpy)):
+        xi=abs(float(coord_ex_entry.get())-xiqp[i])
+        if ((i+1)>=len(qpy)):
+            xii=float(coord_dx_entry.get())
+        else:
+            xii=abs(float(coord_ex_entry.get())-xiqp[i+1])
+
+        if freacao_e<0:
+            canvas.create_line(x0+xi*a, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, x0+xii*a, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, fill="red", width=2,tags="cortante")
+            #yv=yv+(valores_xiqp[i]*valores_qpy[i])*b
+            fcortante_e = xiqp[i]*qpy[i]+fcortante_e
+
+        ###Para ligar a última carga ao ponto de apoio esquerdo
+        # if (i == (len(qpy)-1)):
+        # #     canvas.create_line(x0+xi*a, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, xf, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, fill="red", width=2,tags="cortante")
+        #     canvas.create_line(xf, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, xf, yv-25, fill="red", width=2,tags="cortante")
+
+        elif freacao_e>0:
+            canvas.create_line(x0+xi*a,yv-50, x0+xi*a, yv-(xiqp[i]*qpy[i]-fey)*b, fill="red", width=2,tags="cortante")
+
+
+    # qpy.insert(0, fcortante_e)
+    # xiqp.insert(0,float(coord_ex_entry.get()))
+
+    # for i in range(len(valores_qpy)):
+    #     qdy.append(valores_qpy[i])
+    #     xiqd.append(valores_xiqp[i])
+    #     xfqd.append(valores_xiqp[i])
     
-    forcas = zip(qdy,xiqd,xfqd)
-    forcas = sorted(forcas, key= lambda t: t[1])
+    # forcas = zip(qdy,xiqd,xfqd)
+    # forcas = sorted(forcas, key= lambda t: t[1])
 
-    for item in forcas:
-        print(item)
-        for j in item: 
-            print(j)
-
-
-
+    # for item in forcas:
+    #     print(item)
+    #     for j in item: 
+    #         print(j)
 
     # #comeca a desenhar o diagrama da forca cortante, começando pelo ponto de apoio esquerdo
     # for i in range(len(valores_xiqp)):
