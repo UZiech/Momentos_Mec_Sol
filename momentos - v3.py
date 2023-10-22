@@ -79,18 +79,13 @@ def diagrama_cortante():
 
     b = 25/abs(max(abs(freacao_e),abs(freacao_d))) # proporcao para fazer o desenho do diagrama e sempre considerar a maior forca como o ponto maximo do desenho
 
+    #Desenha as linhas de base do diagrama e insere o texeto informativo
     canvas.create_line(x0,yv-50, xf, yv-50, dash=(10,10), tags="cortante")
     canvas.create_line(x0,yv-25, xf, yv-25, tags="cortante")
     canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="cortante")
     canvas.create_text(x0, yv-60, text="Diagrama de esforço cortante", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="cortante")  
-
-
-    #Passo 1: unir as listas de cargas distribuidas e pontuais em uma tupla com o comando zip
-    #Passo 2: ordenar a tupla obtida, com base na coluna do xiqd/xiqp
-    #Passo 3: Criar uma lista que conterá as coordendas x e y da forca cortante. Essa lista sera utilizada para o canvas desenhar a linha
-    #Passo 4: para o desenho sobre o ponto de apoio esquerdo, inserir os dados na lista do passo 4 fora do loop pois não é certo que sempre haverá carga nesse ponto 
-    #Passo 5: varer a dupla criada com o xip e fazer as contas de força cortante para cada conjunto de valores da tupla, inserindo os dados na lista
-
+    
+    #transforma as cargas distribuidas em cargas pontuais, colocando as cargas dentro da lista de cargas pontuais e as posições de ação das cargas dentro da lista de posicao de ação das cargas pontuais
     qpy=valores_qpy
     qdy=valores_qdy
     xiqp = valores_xiqp
@@ -119,7 +114,6 @@ def diagrama_cortante():
     canvas.create_line(x0, yv-25,x0, yv-25+freacao_e*b, fill="red", width=2,tags="cortante")
     canvas.create_line(x0, yv-25+freacao_e*b, x0+xi*a, yv-25+freacao_e*b, fill="red", width=2,tags="cortante")
 
-
     for i in range(len(qpy)):
         xi=abs(float(coord_ex_entry.get())-xiqp[i])
         if ((i+1)>=len(qpy)):
@@ -127,50 +121,23 @@ def diagrama_cortante():
         else:
             xii=abs(float(coord_ex_entry.get())-xiqp[i+1])
 
+        #primeiro desenha o diagrama para reação negativas no apoio esquerdo
         if freacao_e<0:
             canvas.create_line(x0+xi*a, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, x0+xii*a, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, fill="red", width=2,tags="cortante")
-            #yv=yv+(valores_xiqp[i]*valores_qpy[i])*b
             fcortante_e = qpy[i]+fcortante_e
 
-        ###Para ligar a última carga ao ponto de apoio esquerdo
-        if (i == (len(qpy)-1)):
-        # #     canvas.create_line(x0+xi*a, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, xf, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, fill="red", width=2,tags="cortante")
-            canvas.create_line(xf, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, xf, yv-25, fill="red", width=2,tags="cortante")
+        ###Para ligar a última carga ao ponto de apoio direito
+            if (i == (len(qpy)-1)):
+                canvas.create_line(xf, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, xf, yv-25, fill="red", width=2,tags="cortante")
 
+        #agora desenha o diagram para reação positivas no apoio esquerdo
         elif freacao_e>0:
-            canvas.create_line(x0+xi*a,yv-50, x0+xi*a, yv-(xiqp[i]*qpy[i]-fey)*b, fill="red", width=2,tags="cortante")
+            canvas.create_line(x0+xi*a, yv-25-(xiqp[i]*qpy[i]+fcortante_e)*b, x0+xii*a, yv-25-(xiqp[i]*qpy[i]+fcortante_e)*b, fill="red", width=2,tags="cortante")
+            fcortante_e = qpy[i]+fcortante_e
 
-
-    # qpy.insert(0, fcortante_e)
-    # xiqp.insert(0,float(coord_ex_entry.get()))
-
-    # for i in range(len(valores_qpy)):
-    #     qdy.append(valores_qpy[i])
-    #     xiqd.append(valores_xiqp[i])
-    #     xfqd.append(valores_xiqp[i])
-    
-    # forcas = zip(qdy,xiqd,xfqd)
-    # forcas = sorted(forcas, key= lambda t: t[1])
-
-    # for item in forcas:
-    #     print(item)
-    #     for j in item: 
-    #         print(j)
-
-    # #comeca a desenhar o diagrama da forca cortante, começando pelo ponto de apoio esquerdo
-    # for i in range(len(valores_xiqp)):
-
-    #     xi=abs(float(coord_ex_entry.get())-valores_xiqp[i])
-    #     if fey<0:
-    #         if (valores_xiqp[i] == float(coord_ex_entry.get())):
-    #             canvas.create_line(x0+xi*a,yv-50, x0+xi*a, yv+(valores_xiqp[i]*valores_qpy[i]+fey)*b, fill="red", width=2,tags="cortante")
-    #             yv=yv+(valores_xiqp[i]*valores_qpy[i]+fey)*b
-            
-    #         else:
-    #             canvas.create_line(x0+xi*a,yv, x0+xi*a, yv+(valores_xiqp[i]*valores_qpy[i]+fey)*b, fill="red", width=2,tags="cortante")
-
-    #     elif fey>0:
-    #         canvas.create_line(x0+xi*a,yv-50, x0+xi*a, yv+(valores_xiqp[i]*valores_qpy[i]-fey)*b, fill="red", width=2,tags="cortante")
+        ###Para ligar a última carga ao ponto de apoio direito
+            if (i == (len(qpy)-1)):
+                canvas.create_line(xf, yv-25-(xiqp[i]*qpy[i]+fcortante_e)*b, xf, yv-25, fill="red", width=2,tags="cortante")
 
     
 ##############################
