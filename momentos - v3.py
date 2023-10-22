@@ -130,12 +130,12 @@ def diagrama_cortante():
         if freacao_e<0:
             canvas.create_line(x0+xi*a, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, x0+xii*a, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, fill="red", width=2,tags="cortante")
             #yv=yv+(valores_xiqp[i]*valores_qpy[i])*b
-            fcortante_e = xiqp[i]*qpy[i]+fcortante_e
+            fcortante_e = qpy[i]+fcortante_e
 
         ###Para ligar a última carga ao ponto de apoio esquerdo
-        # if (i == (len(qpy)-1)):
+        if (i == (len(qpy)-1)):
         # #     canvas.create_line(x0+xi*a, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, xf, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, fill="red", width=2,tags="cortante")
-        #     canvas.create_line(xf, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, xf, yv-25, fill="red", width=2,tags="cortante")
+            canvas.create_line(xf, yv-25+(xiqp[i]*qpy[i]+fcortante_e)*b, xf, yv-25, fill="red", width=2,tags="cortante")
 
         elif freacao_e>0:
             canvas.create_line(x0+xi*a,yv-50, x0+xi*a, yv-(xiqp[i]*qpy[i]-fey)*b, fill="red", width=2,tags="cortante")
