@@ -123,17 +123,15 @@ def diagrama_cortante():
         else:
             xii=abs(float(coord_ex_entry.get())-xiqp[i+1])
 
-        #A principio não precisa fazer um procedimento de desenho para reacao positivo e outro para reacao negativa
-        #if freacao_e<0:
+        #primeiro desenha o diagrama para reação negativas no apoio esquerdo
+       #if freacao_e<0:
         canvas.create_line(x0+xi*a, yv-25+(qpy[i]+fcortante_e)*b, x0+xii*a, yv-25+(qpy[i]+fcortante_e)*b, fill="red", width=2,tags="cortante")
         fcortante_e = qpy[i]+fcortante_e
-        
+        canvas.create_line(x0+xii*a, yv-25+(qpy[i]+fcortante_e)*b, fill="red", width=2,tags="cortante")
+
         ###Para ligar a última carga ao ponto de apoio direito
-        ###########
-        #### Problema. O fechamento do diagrama nao esta funcionando. Tentar fazer aos moldes do inicio do diagrama - linhas 113 a 115
-        ############
-        if (i == (len(qpy)-1)):
-            canvas.create_line(xf, yv-25+(qpy[i]+freacao_d)*b, xf, yv-25, fill="red", width=2,tags="cortante")
+       #     if (i == (len(qpy)-1)):
+        #        canvas.create_line(xf, yv-25+(qpy[i]+fcortante_e)*b, xf, yv-25, fill="red", width=2,tags="cortante")
 
         # #agora desenha o diagram para reação positivas no apoio esquerdo
         # elif freacao_e>0:
