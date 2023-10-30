@@ -231,10 +231,10 @@ def diagrama_momento_fletor():
         #Calcula os momentos devido as cargas pontuais
         for i in range(len(valores_qpy)): #qpy são apenas as cargas pontuais
             if (pos == xiqp[i]):
-                mfletor_local = valores_qpy[i]*abs(float(coord_ex_entry.get())-xiqp[i])+contrib_qp
+                mfletor_local = -(valores_qpy[i]*abs(float(coord_ex_entry.get())-xiqp[i])+contrib_qp)
                 contrib_qp=mfletor_local
                 mfletor.append((mfletor_local))
-                print("entrei")
+                print("mfletor_local",mfletor_local)
         
         #Calcula os momentos devido as cargas distribuidas
         for i in range(len(qdy)): #qdy são as cargas distribuidas que foram transformadas em pontuais
