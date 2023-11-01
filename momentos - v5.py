@@ -209,19 +209,47 @@ def diagrama_momento_fletor():
     #calcula os momentos devidos as cargas pontuais e distribuidas ao longo de todo o comprimento da viga, integrando a posicao com incremento de 0.01
     pos=round(float(coord_ex_entry.get()),2)
     mfletor_local=0.0
-    contrib_qp = 0.0
+    #contrib_qp = 0.0
+    cont = -1
     while (pos<=float(coord_dx_entry.get())):
         #Calcula os momentos devido as cargas pontuais
         for i in range(len(valores_qpy)): #qpy são apenas as cargas pontuais
             if (pos == xiqp[i]):
-                mfletor_local = (valores_qpy[i]*abs(float(coord_ex_entry.get())-xiqp[i]))+contrib_qp
-                contrib_qp=mfletor_local+contrib_qp
-                mfletor.append(mfletor_local)
+                mfletor_local = -(valores_qpy[i]*abs(float(coord_ex_entry.get())-xiqp[i]))
+                #contrib_qp=mfletor_local+contrib_qp
+                mfletor.append((mfletor_local))
+                #para verificar se tem carga pontual sobreposta a carga distribuida
+                for k in range(len(valores_qdy)):
+                    if ((xiqp[i] >= valores_xiqd[k]) and (xiqp[i]<=valores_xfqd[k])):
+                        for z in range(len(qdy)):
+                            if (xiqp[i] == xqdy[z]):
+                                print("sobreposicao de detectada")
+                                print("antes:  qdy[z], z", qdy[z], z)
+                                qdy[z] = qdy[z]+valores_qpy[i]
+                                print("depois: qdy[z], z", qdy[z], z)
+                                cont = i
+
+                        
+
+
+                if cont == -1:
+                    mfletor_local = -(valores_qpy[i]*abs(float(coord_ex_entry.get())-xiqp[i]))
+                    mfletor.append((mfletor_local))
+                else:
+                    xiqp.pop(cont)
+                    print("removi")
+
+                cont = -1
+
+                print("valores_qpy",valores_qpy)
+                print("valores_qpy",qdy)
+
         
         #Calcula os momentos devido as cargas distribuidas
         for i in range(len(qdy)): #qdy são as cargas distribuidas que foram transformadas em pontuais
             if (pos == xqdy[i]):
-                mfletor_local = -valor_dist*qdy[i]*(abs(float(coord_ex_entry.get())-xqdy[i]))**2 + valor_dist*valor_dist*qdy[i]*abs(float(coord_ex_entry.get())-xqdy[i])+contrib_qp
+                #mfletor_local = -valor_dist*qdy[i]*(abs(float(coord_ex_entry.get())-xqdy[i]))**2 + valor_dist*valor_dist*qdy[i]*abs(float(coord_ex_entry.get())-xqdy[i])+contrib_qp
+                mfletor_local = -valor_dist*qdy[i]*(abs(float(coord_ex_entry.get())-xqdy[i]))**2 + valor_dist*valor_dist*qdy[i]*abs(float(coord_ex_entry.get())-xqdy[i])
                 mfletor.append((mfletor_local))
                 xiqp.append(xqdy[i])
         
@@ -237,9 +265,9 @@ def diagrama_momento_fletor():
     canvas.create_text(x0, yv-110, text="Diagrama de momento fletor", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="fletor")
 
     #Apresenta os valores máximo e mínimo do momento fletor
-    canvas_text = str(f'{max(list(map(abs,mfletor))):.2f}') + "N"
+    canvas_text = "-" + str(f'{max(list(map(abs,mfletor))):.2f}') + "N"
     canvas.create_text(xf+5, yv-100, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="fletor")  #escreve o valor do momento fletor máximo
-    canvas_text = "-" + str(f'{max(list(map(abs,mfletor))):.2f}') + "N"    
+    canvas_text = str(f'{max(list(map(abs,mfletor))):.2f}') + "N"    
     canvas.create_text(xf+5, yv, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="fletor")  #escreve o valor do momento fletor mínimo
 
     #multiplica cada elemento do eixo y (momento fletor) pela proporcionalidade b, de forma que fique dentro das linhas do diagrama
