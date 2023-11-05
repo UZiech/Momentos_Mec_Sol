@@ -246,52 +246,76 @@ def diagrama_momento_fletor():
             qdy.append(valores_qdy[i]*incremento)
             xqdy.append(pos)
             pos=round(pos+incremento,2)
-    
+
     #calcula os momentos devidos as cargas pontuais e distribuidas ao longo de todo o comprimento da viga, integrando a posicao com incremento de 0.01
     pos=round(coord_ap_e,2)
     mfletor_local=0.0
-    cont=-1
-    contribqp = 0.0
+    #cont=-1
+    #contribqp = 0.0
 
-    while (pos<=float(coord_dx_entry.get())):
-        #Calcula os momentos devido as cargas pontuais
-        for i in range(len(valores_qpy)): #qpy são apenas as cargas pontuais
-            if (pos == xiqp[i]):
-                #mfletor_local = (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) + fey*abs(coord_ap_e - xiqp[i])
-                #mfletor.append(mfletor_local)
-                #para verificar se tem carga pontual sobreposta a carga distribuida
-                for k in range(len(valores_qdy)):
-                    if ((xiqp[i] >= valores_xiqd[k]) and (xiqp[i]<=valores_xfqd[k])):
-                        for z in range(len(qdy)):
-                            if (xiqp[i] == xqdy[z]):
-                                print("fiz o calculo com sobreposicao")
-                                mfletor_local = (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) - (valores_qdy[0])*(abs(valores_xiqd[0]-xqdy[z]))*abs(valores_xiqd[0]-xqdy[z])/2- fey*abs(coord_ap_e - xqdy[z])
-                                mfletor.append(mfletor_local)
-                                contribqp = contribqp + (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) #+ fey*abs(coord_ap_e - xiqp[i])
-                                cont = i
-                if cont == -1:
-                    mfletor_local = (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) + fey*abs(coord_ap_e - xiqp[i])
-                    mfletor.append(mfletor_local)
-                else:
-                    cont = -1
-        
-        #Calcula os momentos devido as cargas distribuidas
-        for i in range(len(qdy)): #qdy são as cargas distribuidas que foram transformadas em pontuais
-            if (pos == xqdy[i]):
-                #mfletor_local = -valor_dist*qdy[i]*(abs(coord_ap_e-xqdy[i]))**2 + valor_dist*valor_dist*qdy[i]*abs(coord_ap_e-xqdy[i])+contrib_qp
-                mfletor_local = -(valores_qdy[0])*(abs(valores_xiqd[0]-xqdy[i]))*abs(valores_xiqd[0]-xqdy[i])/2 - fey*abs(coord_ap_e - xqdy[i])+contribqp
-                mfletor.append((mfletor_local))
-                xiqp.append(xqdy[i])
+    #Calcula os momentos quando se tem apenas cargas pontuais
+    if len(valores_qpy)>0 and len(valores_qdy)==0:
+        while (pos<=float(coord_dx_entry.get())):
+            for i in range(len(valores_qpy)): #qpy são apenas as cargas pontuais
+                if (pos == xiqp[i]):
+                    mfletor_local = (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) + mfletor_local
+                    mfletor.append(mfletor_local+ fey*abs(coord_ap_e - xiqp[i]))
+            pos=round(pos+incremento,2)
+   
+    #Calcula os momentos quando se tem apenas cargas distribuidas
+    if len(valores_qpy)==0 and len(valores_qdy)>0:
+        while (pos<=float(coord_dx_entry.get())):
+            for i in range(len(qdy)): #qdy são as cargas distribuidas que foram transformadas em pontuais
+                if (pos == xqdy[i]):
+                    mfletor_local = (valores_qdy[0])*(abs(valores_xiqd[0]-xqdy[i]))*abs(valores_xiqd[0]-xqdy[i])/2 
+                    mfletor.append((mfletor_local + fey*abs(coord_ap_e - xqdy[i])))
+                    xiqp.append(xqdy[i])
+            pos=round(pos+incremento,2)
 
-                # for k in range(len(valores_qpy)):
-                #     if ((valores_xiqp[k]==xqdy[i])):
-                #         print("Sobreposicao")
-                #         mfletor_local = +(valores_qdy[0]/2)*(abs(coord_ap_e-xqdy[i]))**2 - fey*abs(coord_ap_e - xqdy[i])
-                #         mfletor.append((mfletor_local))
-                #         xiqp.append(xqdy[i])
-                
-        
-        pos=round(pos+incremento,2)
+    mfletor1=[]
+    xiqp1=[]
+
+    #Calcula os momentos quando se tem cargas distribuidas e pontuais
+    if len(valores_qpy)>0 and len(valores_qdy)>0:
+        #integra a posicao ao longo de toda a viga
+        while (pos<=float(coord_dx_entry.get())):
+
+            #faz os calculos para todas as cargas pontuais. Nesse programa, somente uma carga distribuida é aceita na entrada dos dados.
+            for i in range(len(valores_qpy)): 
+
+                # verifica se o local da integracao no comprimento da barra, está antes da carga distribuida
+                if (pos < valores_xiqd[0]):
+
+                    # verifica se no local da integracao no comprimento da barra, existe carga pontual
+                    if (pos == xiqp[i]): 
+                        mfletor_local = (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) +mfletor_local
+                        mfletor.append(mfletor_local+ fey*abs(coord_ap_e - xiqp[i]))
+
+                #verifica se o local da integracao no comprimento da barra, está entre a ação da carga distribuida
+                elif (pos >= valores_xiqd[0]) and (pos <= valores_xfqd[0]): 
+                    mfletor_dist = (valores_qdy[0])*(abs(valores_xiqd[0]-pos))*abs(valores_xiqd[0]-pos)/2 + fey*abs(coord_ap_e - pos)+mfletor_local
+                    mfletor1.append((mfletor_dist))
+                    xiqp1.append(pos)
+                    
+                    if (pos == xiqp[i]):
+                        print("ainda nada")
+
+                #verifica se o local da integracao no comprimento da barra, está após a ação da carga distribuida
+                elif (pos > valores_xfqd[0]):
+
+                    if (pos == xiqp[i]):
+                        #mfletor_local = (valores_qpy[i]*abs(coord_ap_e-pos)) +valores_qdy[0]*abs(valores_xfqd[0]-valores_xiqd[0])*abs(((valores_xfqd[0]-valores_xiqd[0])/2)-pos) +mfletor_local
+                        mfletor_local = (valores_qpy[i]*abs(coord_ap_e-pos)) + mfletor_dist
+                        mfletor.append(mfletor_local)
+                        print("mfletor_local",mfletor_local)
+                        print("fey*abs(coord_ap_e - pos)",fey*abs(coord_ap_e - pos))
+
+            pos=round(pos+incremento,2)
+
+    for j in range(len(mfletor1)):
+        mfletor.append((mfletor1[j]))
+        xiqp.append(xiqp1[j])
+
 
     # proporcao para fazer o desenho do diagrama e sempre considerar o maior momento como o ponto maximo/minimo do desenho
     b = 50/max(list(map(abs,mfletor)))
@@ -483,8 +507,17 @@ def habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_reacao):
     botao_insere_qp.grid(column=5, row=1, padx=10, pady=10)
     if len(qd) > 0:
         botao_insere_qd.grid_forget()
+        qdfx_entry.config(state="disabled")
+        qdfy_entry.config(state="disabled")
+        qdxi_entry.config(state="disabled")
+        qdxf_entry.config(state="disabled")
+
     elif (len(qd) == 0):
         botao_insere_qd.grid(column=5, row=3, padx=10, pady=10)
+        qdfx_entry.config(state="normal")
+        qdfy_entry.config(state="normal")
+        qdxi_entry.config(state="normal")
+        qdxf_entry.config(state="normal")
   
     botao_remover.grid(column=5, row=4, padx=10, pady=10)
     botao_insere_apoio.grid(column=5, row=5, padx=10, pady=10)
@@ -716,8 +749,17 @@ def listar_cargas():
 
     if len(qd) > 0:
         botao_insere_qd.grid_forget()
+        qdfx_entry.config(state="disabled")
+        qdfy_entry.config(state="disabled")
+        qdxi_entry.config(state="disabled")
+        qdxf_entry.config(state="disabled")
+
     elif (len(qd) == 0):
         botao_insere_qd.grid(column=5, row=3, padx=10, pady=10)
+        qdfx_entry.config(state="normal")
+        qdfy_entry.config(state="normal")
+        qdxi_entry.config(state="normal")
+        qdxf_entry.config(state="normal")
 
 
 #########################################################  
