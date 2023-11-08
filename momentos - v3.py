@@ -80,14 +80,14 @@ def diagrama_cortante():
         canvas.create_line(x0,yv-50, xf, yv-50, dash=(10,10), tags="cortante")
         canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="cortante")
         canvas.create_text(x0, yv-25, text="Não há cargas verticais líquidas nos pontos de apoio.", anchor="w", fill="red", font=('Helvetica 10 bold'),tag="cortante")
-        canvas.create_text(x0, yv-60, text="Diagrama de esforço cortante", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="cortante")  
+        canvas.create_text(x0-20, yv-60, text="Diagrama de esforço cortante", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="cortante")  
         return False
 
     #Desenha as linhas de base do diagrama e insere o texto informativo
     canvas.create_line(x0,yv-50, xf, yv-50, dash=(10,10), tags="cortante")
     canvas.create_line(x0,yv-25, xf, yv-25, tags="cortante")
     canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="cortante")
-    canvas.create_text(x0, yv-60, text="Diagrama de esforço cortante", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="cortante")  
+    canvas.create_text(x0-20, yv-60, text="Diagrama de esforço cortante", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="cortante")  
     
     #transforma as cargas distribuidas em cargas pontuais, colocando as cargas dentro da lista de cargas pontuais e as posições de ação das cargas dentro da lista de posicao de ação das cargas pontuais
     qpy=valores_qpy
@@ -123,7 +123,7 @@ def diagrama_cortante():
     b = 25/abs(max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)))
 
 
-    #Calcula as forças cortantes devido a cada uma das cargas e criar a lista par ordenado para desenhar o diagrama
+    #Calcula as forças cortantes devido a cada uma das cargas e cria a lista par ordenado para desenhar o diagrama
     par_coordenado = [x0,yv-25,x0,yv-25-fcortante_e*b] #coordenadas do ponto de apoio esquedo e da primeira força cortante
     for i in list(range(len(qpy))):
         xi=abs(float(coord_ex_entry.get())-xiqp[i])
@@ -251,8 +251,6 @@ def diagrama_momento_fletor():
     pos=round(coord_ap_e,2)
     mfletor_local=0.0
     mfletor_local1=0.0
-    #cont=-1
-    #contribqp = 0.0
 
     #Calcula os momentos quando se tem apenas cargas pontuais
     if len(valores_qpy)>0 and len(valores_qdy)==0:
@@ -334,6 +332,13 @@ def diagrama_momento_fletor():
         mfletor.append((mfletor1[j]))
         xiqp.append(xiqp1[j])
 
+    #se não tiver momento fletor, não existe diagrama do momento fletor
+    if max(list(map(abs,mfletor))) == 0.0:
+        canvas.create_line(x0,yv-100, xf, yv-100, dash=(10,10), tags="fletor")
+        canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="fletor")
+        canvas.create_text(x0, yv-50, text="Não há momento fletor na viga.", anchor="w", fill="red", font=('Helvetica 10 bold'),tag="fletor")
+        canvas.create_text(x0-20, yv-110, text="Diagrama do momento fletor", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="fletor")  
+        return False
 
     # proporcao para fazer o desenho do diagrama e sempre considerar o maior momento como o ponto maximo/minimo do desenho
     b = 50/max(list(map(abs,mfletor)))
@@ -342,7 +347,7 @@ def diagrama_momento_fletor():
     canvas.create_line(x0,yv-100, xf, yv-100, dash=(10,10), tags="fletor")
     canvas.create_line(x0,yv-50, xf, yv-50, tags="fletor")
     canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="fletor")
-    canvas.create_text(x0, yv-110, text="Diagrama de momento fletor", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="fletor")
+    canvas.create_text(x0-20, yv-110, text="Diagrama do momento fletor", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="fletor")
 
     #Apresenta os valores máximo e mínimo do momento fletor
     canvas_text = str(f'{max(list(map(abs,mfletor))):.2f}') + "N"
@@ -527,34 +532,8 @@ def diagrama_normal():
     for i in range(0,len(qp),3):
         valores_qpx.append(qp[i])
         valores_xiqp.append(qp[i+2])
-    
-#########################################################################Calculo da reacao nos pontos de apoio começa aqui###########################################################
-    fex=0.0 #força resultante em x, no apoio esquerdo devido as cargas pontuais. Nao existira essa força no apoio direito, uma vez que é uma poio de 1º genero
-    fexd=0.0 #força resultante em x, no apoio esquerdo devido as cargas distribuidas. Nao existira essa força no apoio direito, uma vez que é uma poio de 1º genero
-    soma_fdx=0.0 #somatorio da força distribuida em x, aplicada no ponto de efetiva aplicacao da forca distribuida
-    
-    #calcula o valor da força resultante devido às cargas distribuidas
-    for i in range(len(valores_qdx)):
-        dql=abs(valores_xfqd[i]-valores_xiqd[i]) #distancia pela qual há ação da carga distribuida
-        Frqlx=float(valores_qdx[i]*dql)         #forca resultande em x devido a carga distribuida
-        soma_fdx=soma_fdx+Frqlx        #a soma das forças em x devido as cargas distribuida pode ser colocado no loop das forças atuantes no eixo y, pois as listas de força em y e força em x tem a mesma dimensao
 
-    fexd=soma_fdx
-
-    #Calculo do momento devido às cargas pontuais
-    #somatorio dos momentos deve ser igual a zero. Fazendo em relação ao ponto direito e resolvendo para fey
-    for j in range(len(valores_qpx)):
-
-        #acha a distancia entre a coordenada do ponto de apoio esquerdo (utilizado como origem para fazer os desenhos) e o ponto de aplicação da força.
-        xi=abs(float(coord_ex_entry.get())-valores_xiqp[j])
-        fex = fex + valores_qpx[j]
-
-    fexr = -(fex + fexd) #fazendo fexr ser a força resultante em x no apoio esquerdo (somatorio das cargas distribuidas e pontuais)
-
-
-    ################################################################################Calculo da reacao acaba aqui##################################################################
-
-    #transforma as cargas distribuidas em cargas pontuais
+    #transforma as cargas distribuidas em cargas pontuais, colocando os valores dentro da lista de carga pontual e das posicoes das cargas pontuais
     xiqp = valores_xiqp
     qpx = valores_qpx
     incremento = 0.01
@@ -565,8 +544,9 @@ def diagrama_normal():
             qpx.append(valores_qdx[i]*incremento)
             xiqp.append(pos)
             pos=round(pos+incremento,2)
-
-    print("xiqp",xiqp)
+    
+    #Força de reação x no ponto de apoio esquerdo
+    fexr = -sum(qpx)
 
     #ordena as listas de carga pontual e posicao com base na ordem crescente da posicao
     indices = list(range(len(xiqp)))
@@ -574,35 +554,19 @@ def diagrama_normal():
     valores_qpx = [valores_qpx[i] for i in indices]
     xiqp = [xiqp[i] for i in indices]
 
+    #Calcula a forca em x, em cada local que possui carga
     somatorio_forca_x=0.0
     for i in range(len(xiqp)):
-        somatorio_forca_x = qpx[i]+somatorio_forca_x
-        print("Somatorio_forca_x",somatorio_forca_x)
+        somatorio_forca_x = -qpx[i]+somatorio_forca_x
         normal.append(somatorio_forca_x)
-    
-    print("normal",normal)
 
-
-    #calcula as forças na viga devidos as cargas pontuais e distribuidas ao longo de todo o comprimento da viga, integrando a posicao com incremento de 0.01
-    pos=round(coord_ap_e,2)
-
-    # proporcao para fazer o desenho do diagrama e sempre considerar a maior forca normal
-    b = 50/max(list(map(abs,normal)))
-
-    #Desenha as linhas de base do diagrama e insere o texto informativo
-    canvas.create_line(x0,yv-100, xf, yv-100, dash=(10,10), tags="normal")
-    canvas.create_line(x0,yv-50, xf, yv-50, tags="normal")
-    canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="normal")
-    canvas.create_text(x0, yv-110, text="Diagrama da força Normal", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="normal")
-
-    #Apresenta os valores máximo e mínimo da força normal
-    canvas_text = str(f'{max(list(map(abs,normal))):.2f}') + "N"
-    canvas.create_text(xf+5, yv-100, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="normal")  #escreve o valor do momento fletor máximo
-    canvas_text = "-" + str(f'{max(list(map(abs,normal))):.2f}') + "N"    
-    canvas.create_text(xf+5, yv, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="normal")  #escreve o valor do momento fletor mínimo
-
-    #multiplica cada elemento do eixo y (força normal) pela proporcionalidade b, de forma que fique dentro das linhas do diagrama
-    normal = [(yv-50+j*b) for j in normal] 
+    #se não tiver força no eixo x, não existe diagrama normal
+    if (max(max(list(map(abs,normal))),fexr) == 0.0):
+        canvas.create_line(x0,yv-100, xf, yv-100, dash=(10,10), tags="normal")
+        canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="normal")
+        canvas.create_text(x0, yv-50, text="Não há forças horizontais.", anchor="w", fill="red", font=('Helvetica 10 bold'),tag="normal")
+        canvas.create_text(x0-20, yv-110, text="Diagrama da força normal", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="normal")  
+        return False
 
     #ordena as listas de normal e posicao com base na ordem crescente da posicao
     indices = list(range(len(xiqp)))
@@ -610,17 +574,43 @@ def diagrama_normal():
     normal = [normal[i] for i in indices]
     xiqp = [xiqp[i] for i in indices]
 
-    #insere na primeira e ultima posicao da lista da lista da força normal e da posicao do força normal, as coordenadas e forças nos pontos de apoio
-    normal.insert(0,yv-50)
-    normal.append(yv-50)
-    xiqp.insert(0,coord_ap_e)
-    xiqp.append(float(coord_dx_entry.get()))
+    #Desenha as linhas de base do diagrama e insere o texto informativo
+    canvas.create_line(x0,yv-100, xf, yv-100, dash=(10,10), tags="normal")
+    canvas.create_line(x0,yv-50, xf, yv-50, tags="normal")
+    canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="normal")
+    canvas.create_text(x0-20, yv-110, text="Diagrama da força Normal", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="normal")
 
-    #cria a lista par coordenado, com a posicao e o momento de todas as cargas e dos pontos de apoio
-    for i in range(len(normal)):
-        xi=abs(coord_ap_e-xiqp[i])
-        par_coordenado.append(x0+xi*a)
-        par_coordenado.append(normal[i])
+    #Apresenta os valores máximo e mínimo da força normal
+    canvas_text = str(f'{max(list(map(abs,normal))):.2f}') + "N"
+    canvas.create_text(xf+5, yv-100, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="normal")  #escreve o valor do momento fletor máximo
+    canvas_text = "-" + str(f'{max(list(map(abs,normal))):.2f}') + "N"    
+    canvas.create_text(xf+5, yv, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="normal")  #escreve o valor do momento fletor mínimo
+
+    # proporcao para fazer o desenho do diagrama e sempre considerar a maior forca normal
+    b = 50/(max(max(list(map(abs,normal))),fexr))
+
+    #multiplica cada elemento do eixo y (força normal) pela proporcionalidade b, de forma que fique dentro das linhas do diagrama
+    normal = [(yv-50-j*b) for j in normal] 
+
+    #Calcula as forças cortantes devido a cada uma das cargas e cria a lista par ordenado para desenhar o diagrama
+    par_coordenado = [x0,yv-50,x0,normal[0]] #coordenadas do ponto de apoio esquedo e da primeira força normal
+    
+    for i in list(range(len(qpx))):
+        xi=abs(float(coord_ex_entry.get())-xiqp[i])
+
+        if i == (len(qpx)-1): #se for a ultima carga, desce para o eixo x e segue até o final
+            par_coordenado.append(x0+xi*a)
+            par_coordenado.append(normal[i])
+            par_coordenado.append(x0+xi*a)
+            par_coordenado.append(yv-50)
+            par_coordenado.append(xf)
+            par_coordenado.append(yv-50)
+
+        else: #se nao for a ultima carga, continua desenhando o diagrama
+            par_coordenado.append(x0+xi*a)
+            par_coordenado.append(normal[i])
+            par_coordenado.append(x0+xi*a)
+            par_coordenado.append(normal[i+1])
 
     #Desenha o diagrama
     canvas.create_line(par_coordenado, fill="red", width=2,tags="normal")
@@ -882,6 +872,15 @@ def desenha():
     botao_cortante.grid(column=6, row=11, padx=10, pady=10)
     botao_fletor.grid(column=7, row=11, padx=10, pady=10)
     botao_normal.grid(column=8, row=11, padx=10, pady=10)
+
+
+    diagrama_cortante()
+    diagrama_momento_fletor()
+    diagrama_normal()
+    forca_reacao()
+    desenha_qd()
+    desenha_qp()
+
 
     return botao_qp, botao_qd, botao_reacao
 
