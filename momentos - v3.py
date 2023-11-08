@@ -460,6 +460,10 @@ def forca_reacao():
     fdy=fdy+fdyd #fazendo fey ser a força resultante em y no apoio direito (somatorio das cargas distribuidas e pontuais). O ideal seria uma outra variavel para facilitar a compreensão, mas aí precisaria editar o trecho do código que faz o desenho do gráfico, para fazer referencia à nova variavel.
     fexr = -(fex + fexd) #fazendo fexr ser a força resultante em x no apoio esquerdo (somatorio das cargas distribuidas e pontuais)
 
+    if (fexr == 0.0) and (fdy == 0.0) and (fey == 0.0):
+        canvas.create_text(x0, yv+55, text="Força de reação nos apoios é igual a zero.", fill="red", font=('Helvetica 10 bold'), anchor=W, tag="reacao")  #se não houver nenhum tipo de força de reação, não tem vetor, portanto, escreve que a força resultante nos apoios é igual a zero
+
+
     fey_text = str(f'{fey:.3f}') + "N"
     fdy_text = str(f'{fdy:.3f}') + "N"
     fexr_text = str(f'{fexr:.3f}') + "N"
@@ -540,7 +544,7 @@ def diagrama_normal():
     for i in range(len(valores_qdx)):
         pos = valores_xiqd[i]
 
-        while (pos<=valores_xfqd[i]):
+        while (pos<valores_xfqd[i]):
             qpx.append(valores_qdx[i]*incremento)
             xiqp.append(pos)
             pos=round(pos+incremento,2)
@@ -592,24 +596,30 @@ def diagrama_normal():
     #multiplica cada elemento do eixo y (força normal) pela proporcionalidade b, de forma que fique dentro das linhas do diagrama
     normal = [(yv-50-j*b) for j in normal] 
 
-    #Calcula as forças cortantes devido a cada uma das cargas e cria a lista par ordenado para desenhar o diagrama
-    par_coordenado = [x0,yv-50,x0,normal[0]] #coordenadas do ponto de apoio esquedo e da primeira força normal
+    #Cria a lista par ordenado para desenhar o diagrama
+    # if fexr == 0.0:
+    #     par_coordenado = [x0,yv-50,x0,normal[0]] #coordenadas do ponto de apoio esquedo e da primeira força normal
+    # else:
+    #     par_coordenado = [x0,yv-50,x0,yv-50-fexr*b] #coordenadas do ponto de apoio esquedo e da primeira força normal
+    #par_coordenado = [x0,yv-50,x0,yv-50-fexr*b,x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), yv-50-fexr*b] #coordenadas do ponto de apoio esquerdo até a primeira carga
+    par_coordenado = [x0,yv-50,x0, normal[0],x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), normal[0]] #coordenadas do ponto de apoio esquerdo até a primeira carga
     
     for i in list(range(len(qpx))):
         xi=abs(float(coord_ex_entry.get())-xiqp[i])
 
         if i == (len(qpx)-1): #se for a ultima carga, desce para o eixo x e segue até o final
-            par_coordenado.append(x0+xi*a)
-            par_coordenado.append(normal[i])
+            # par_coordenado.append(x0+xi*a)
+            # par_coordenado.append(normal[i])
             par_coordenado.append(x0+xi*a)
             par_coordenado.append(yv-50)
             par_coordenado.append(xf)
             par_coordenado.append(yv-50)
 
         else: #se nao for a ultima carga, continua desenhando o diagrama
+            xii=abs(float(coord_ex_entry.get())-xiqp[i+1])
             par_coordenado.append(x0+xi*a)
-            par_coordenado.append(normal[i])
-            par_coordenado.append(x0+xi*a)
+            par_coordenado.append(normal[i+1])
+            par_coordenado.append(x0+xii*a)
             par_coordenado.append(normal[i+1])
 
     #Desenha o diagrama
