@@ -555,7 +555,8 @@ def diagrama_normal():
     #ordena as listas de carga pontual e posicao com base na ordem crescente da posicao
     indices = list(range(len(xiqp)))
     indices.sort(key=lambda i: xiqp[i])
-    valores_qpx = [valores_qpx[i] for i in indices]
+    #valores_qpx = [valores_qpx[i] for i in indices]
+    qpx = [qpx[i] for i in indices]
     xiqp = [xiqp[i] for i in indices]
 
     #Calcula a forca em x, em cada local que possui carga
@@ -585,23 +586,23 @@ def diagrama_normal():
     canvas.create_text(x0-20, yv-110, text="Diagrama da força Normal", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="normal")
 
     #Apresenta os valores máximo e mínimo da força normal
-    canvas_text = str(f'{max(list(map(abs,normal))):.2f}') + "N"
+    canvas_text = str(f'{max(max(list(map(abs,normal))),abs(fexr)):.2f}') + "N"
     canvas.create_text(xf+5, yv-100, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="normal")  #escreve o valor do momento fletor máximo
-    canvas_text = "-" + str(f'{max(list(map(abs,normal))):.2f}') + "N"    
+    canvas_text = "-" + str(f'{max(max(list(map(abs,normal))),abs(fexr)):.2f}') + "N"    
     canvas.create_text(xf+5, yv, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="normal")  #escreve o valor do momento fletor mínimo
 
     # proporcao para fazer o desenho do diagrama e sempre considerar a maior forca normal
-    b = 50/(max(max(list(map(abs,normal))),fexr))
+    b = 50/(max(max(list(map(abs,normal))),abs(fexr)))
 
     #multiplica cada elemento do eixo y (força normal) pela proporcionalidade b, de forma que fique dentro das linhas do diagrama
-    normal = [(yv-50-j*b) for j in normal] 
+    normal = [(yv-50+j*b) for j in normal] 
 
     #Cria a lista par ordenado para desenhar o diagrama
     # if fexr == 0.0:
     #     par_coordenado = [x0,yv-50,x0,normal[0]] #coordenadas do ponto de apoio esquedo e da primeira força normal
     # else:
     #     par_coordenado = [x0,yv-50,x0,yv-50-fexr*b] #coordenadas do ponto de apoio esquedo e da primeira força normal
-    par_coordenado = [x0,yv-50,x0,yv-50-fexr*b,x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), yv-50-fexr*b] #coordenadas do ponto de apoio esquerdo até a primeira carga
+    par_coordenado = [x0,yv-50,x0,yv-50+fexr*b,x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), yv-50+fexr*b] #coordenadas do ponto de apoio esquerdo até a primeira carga
     #par_coordenado = [x0,yv-50,x0, normal[0],x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), normal[0]] #coordenadas do ponto de apoio esquerdo até a primeira carga
     
     for i in list(range(len(qpx))):
@@ -924,7 +925,6 @@ def listar_cargas():
         qdfy_entry.config(state="normal")
         qdxi_entry.config(state="normal")
         qdxf_entry.config(state="normal")
-
 
 #########################################################  
 #Funcao que lista as cargas já fornecidas pelo usuario###
