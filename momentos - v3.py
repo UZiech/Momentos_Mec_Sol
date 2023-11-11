@@ -499,9 +499,9 @@ def forca_reacao():
         canvas.create_line(x0+valor_dist*a,yb, x0+valor_dist*a, yv+50, fill="red", width=2,tags="reacao")
         canvas.create_text(x0+valor_dist*a+5, yv+60, text=fdy_text, fill="black", font=('Helvetica 10 bold'),tag="reacao")
 
-###########################
-##Diagrama momento fletor##
-###########################
+#########################
+##Diagrama força normal##
+#########################
 def diagrama_normal():
     yb=370
     yv=yb-30
@@ -559,9 +559,9 @@ def diagrama_normal():
     xiqp = [xiqp[i] for i in indices]
 
     #Calcula a forca em x, em cada local que possui carga
-    somatorio_forca_x=0.0
+    somatorio_forca_x=fexr
     for i in range(len(xiqp)):
-        somatorio_forca_x = -qpx[i]+somatorio_forca_x
+        somatorio_forca_x = qpx[i]+somatorio_forca_x
         normal.append(somatorio_forca_x)
 
     #se não tiver força no eixo x, não existe diagrama normal
@@ -601,8 +601,8 @@ def diagrama_normal():
     #     par_coordenado = [x0,yv-50,x0,normal[0]] #coordenadas do ponto de apoio esquedo e da primeira força normal
     # else:
     #     par_coordenado = [x0,yv-50,x0,yv-50-fexr*b] #coordenadas do ponto de apoio esquedo e da primeira força normal
-    #par_coordenado = [x0,yv-50,x0,yv-50-fexr*b,x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), yv-50-fexr*b] #coordenadas do ponto de apoio esquerdo até a primeira carga
-    par_coordenado = [x0,yv-50,x0, normal[0],x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), normal[0]] #coordenadas do ponto de apoio esquerdo até a primeira carga
+    par_coordenado = [x0,yv-50,x0,yv-50-fexr*b,x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), yv-50-fexr*b] #coordenadas do ponto de apoio esquerdo até a primeira carga
+    #par_coordenado = [x0,yv-50,x0, normal[0],x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), normal[0]] #coordenadas do ponto de apoio esquerdo até a primeira carga
     
     for i in list(range(len(qpx))):
         xi=abs(float(coord_ex_entry.get())-xiqp[i])
@@ -618,9 +618,9 @@ def diagrama_normal():
         else: #se nao for a ultima carga, continua desenhando o diagrama
             xii=abs(float(coord_ex_entry.get())-xiqp[i+1])
             par_coordenado.append(x0+xi*a)
-            par_coordenado.append(normal[i+1])
+            par_coordenado.append(normal[i])
             par_coordenado.append(x0+xii*a)
-            par_coordenado.append(normal[i+1])
+            par_coordenado.append(normal[i])
 
     #Desenha o diagrama
     canvas.create_line(par_coordenado, fill="red", width=2,tags="normal")
