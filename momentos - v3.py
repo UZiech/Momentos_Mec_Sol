@@ -255,15 +255,23 @@ def diagrama_momento_fletor():
     #Calcula os momentos quando se tem apenas cargas pontuais
     if len(valores_qpy)>0 and len(valores_qdy)==0:
         while (pos<=float(coord_dx_entry.get())):
+            mfletor_local=0.0
             for i in range(len(valores_qpy)): #qpy são apenas as cargas pontuais
+                # if (pos == xiqp[i]):
+                #     mfletor_local = (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) + mfletor_local
+                #     mfletor.append(mfletor_local + fey*abs(coord_ap_e - xiqp[i]))
+                #     print(mfletor_local)
                 if (pos == xiqp[i]):
-                    mfletor_local = (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) + mfletor_local
-                    mfletor.append(mfletor_local+ fey*abs(coord_ap_e - xiqp[i]))
+                    mfletor_local = (valores_qpy[i]*abs(pos-xiqp[i])) + mfletor_local
+                    mfletor.append(mfletor_local + fey*abs(pos - xiqp[i]))
+                    print(mfletor_local)
             pos=round(pos+incremento,2)
+
    
     #Calcula os momentos quando se tem apenas cargas distribuidas
     if len(valores_qpy)==0 and len(valores_qdy)>0:
         while (pos<=float(coord_dx_entry.get())):
+            mfletor_local=0.0
             for i in range(len(qdy)): #qdy são as cargas distribuidas que foram transformadas em pontuais
                 if (pos == xqdy[i]):
                     mfletor_local = (valores_qdy[0])*(abs(valores_xiqd[0]-xqdy[i]))*abs(valores_xiqd[0]-xqdy[i])/2 
