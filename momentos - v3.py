@@ -251,23 +251,23 @@ def diagrama_momento_fletor():
     pos=round(coord_ap_e,2)
     mfletor_local=0.0
     mfletor_local1=0.0
+    mfletor1=[]
+    xiqp1=[]
 
     #Calcula os momentos quando se tem apenas cargas pontuais
     if len(valores_qpy)>0 and len(valores_qdy)==0:
         while (pos<=float(coord_dx_entry.get())):
-            mfletor_local=0.0
             for i in range(len(valores_qpy)): #qpy são apenas as cargas pontuais
-                # if (pos == xiqp[i]):
-                #     mfletor_local = (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) + mfletor_local
-                #     mfletor.append(mfletor_local + fey*abs(coord_ap_e - xiqp[i]))
-                #     print(mfletor_local)
                 if (pos == xiqp[i]):
-                    mfletor_local = (valores_qpy[i]*abs(pos-xiqp[i])) + mfletor_local
-                    mfletor.append(mfletor_local + fey*abs(pos - xiqp[i]))
-                    print(mfletor_local)
+                    mfletor_local = (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) + mfletor_local
+                    mfletor.append(mfletor_local + fey*abs(coord_ap_e - xiqp[i]))
+                #     print(mfletor_local)
+                # if (pos == xiqp[i]):
+                #     mfletor_local = (valores_qpy[i]*abs(pos-xiqp[i])) + mfletor_local
+                #     mfletor.append(mfletor_local + fey*abs(coord_ap_e - xiqp[i]))
+
             pos=round(pos+incremento,2)
 
-   
     #Calcula os momentos quando se tem apenas cargas distribuidas
     if len(valores_qpy)==0 and len(valores_qdy)>0:
         while (pos<=float(coord_dx_entry.get())):
@@ -278,9 +278,6 @@ def diagrama_momento_fletor():
                     mfletor.append((mfletor_local + fey*abs(coord_ap_e - xqdy[i])))
                     xiqp.append(xqdy[i])
             pos=round(pos+incremento,2)
-
-    mfletor1=[]
-    xiqp1=[]
 
     #Calcula os momentos quando se tem cargas distribuidas e pontuais
     if len(valores_qpy)>0 and len(valores_qdy)>0:
@@ -335,10 +332,10 @@ def diagrama_momento_fletor():
 
             pos=round(pos+incremento,2)
 
-    #mfletor1 é uma lista auxiliar necessaria quando se tem carga pontual sobreposta com carga distribuida
-    for j in range(len(mfletor1)):
-        mfletor.append((mfletor1[j]))
-        xiqp.append(xiqp1[j])
+        #mfletor1 é uma lista auxiliar necessaria quando se tem carga pontual sobreposta com carga distribuida
+        for j in range(len(mfletor1)):
+            mfletor.append((mfletor1[j]))
+            xiqp.append(xiqp1[j])
 
     #se não tiver momento fletor, não existe diagrama do momento fletor
     if max(list(map(abs,mfletor))) == 0.0:
@@ -378,6 +375,8 @@ def diagrama_momento_fletor():
     mfletor.append(yv-50)
     xiqp.insert(0,coord_ap_e)
     xiqp.append(float(coord_dx_entry.get()))
+
+
 
     #cria a lista par coordenado, com a posicao e o momento de todas as cargas e dos pontos de apoio
     for i in range(len(mfletor)):
@@ -574,7 +573,7 @@ def diagrama_normal():
         normal.append(somatorio_forca_x)
 
     #se não tiver força no eixo x, não existe diagrama normal
-    if (max(max(list(map(abs,normal))),fexr) == 0.0):
+    if (max(max(list(map(abs,normal))),abs(fexr)) == 0.0):
         canvas.create_line(x0,yv-100, xf, yv-100, dash=(10,10), tags="normal")
         canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="normal")
         canvas.create_text(x0, yv-50, text="Não há forças horizontais.", anchor="w", fill="red", font=('Helvetica 10 bold'),tag="normal")
