@@ -383,9 +383,6 @@ def diagrama_momento_fletor():
 
             pos=round(pos+incremento,2)
 
-
-            
-
         #mfletor1 é uma lista auxiliar necessaria quando se tem carga pontual sobreposta com carga distribuida
         for j in range(len(mfletor1)):
             mfletor.append((mfletor1[j]))
