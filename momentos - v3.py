@@ -18,7 +18,6 @@ def diagrama_cortante():
     fdyd=0.0  #força resultante em y, no apoio direito devido as cargas distribuidas
     Frql=0.0 #força resultante em toda a extensao da forca distribuida
     soma_fdy=0.0 #somatorio da força distribuida em y, aplicada no ponto de efetiva aplicacao da forca distribuida
-    fcortante_e=0.0#força cortante sobre o ponto de apoio esquerdo
 
     valores_qdy = []
     valores_xiqd = []
@@ -60,28 +59,27 @@ def diagrama_cortante():
     #somatorio dos momentos deve ser igual a zero. Fazendo em relação ao ponto direito e resolvendo para fey
     for j in range(len(valores_qpy)):
 
-        #acha a distancia entre a coordenada do ponto de apoio esquerdo (utilizado como origem para fazer os desenhos) e o ponto de aplicação da força
-        xi=abs(float(coord_ex_entry.get())-valores_xiqp[j])
-        fey = fey+(valor_dist-xi)*valores_qpy[j]
+        #acha a distancia entre a coordenada do ponto de apoio esquerdo (utilizado como origem para fazer os desenhos) e o ponto de aplicação da força.
+        # xi=abs(float(coord_ex_entry.get())-valores_xiqp[j])
+        # fey = fey+(valor_dist-xi)*valores_qpy[j]
 
-        #Quando a força é aplicada exatamente sobre os pontos de apoio, não há cortante devido à essas forças. Esse if considera contribuição para a cortante somente para cargas que não estejam exatamente sobre os pontos de apoio
+
+        ##################problema a ser resolvido - Quando a força é aplicada exatamente sobre os pontos de apoio, não deveria ter força cortante
         if (round(valores_xiqp[j],2) != round(float(coord_ex_entry.get()),2)) and (round(valores_xiqp[j],2) != round(float(coord_dx_entry.get()),2)):
-            fcortante_e = fey+(valor_dist-xi)*valores_qpy[j]
-
+            #fey1 = fey - (valor_dist-xi)*valores_qpy[j]
+            xi=abs(float(coord_ex_entry.get())-valores_xiqp[j])
+            fey = fey+(valor_dist-xi)*valores_qpy[j]
     
         
     fey=-(fey/valor_dist)   
     #somatorio das forças deve ser igual a zero. Considerando os dois pontos de apoio direito e esquerdo, com componentes x e y
     fdy= -(fey+sum(valores_qpy))
 
-    print("fey",fey)
-
 
     freacao_e=fey+feyd 
     freacao_d=fdy+fdyd
-    #fcortante_e = freacao_e
-    #cortante = freacao_e
-    cortante = fcortante_e
+    fcortante_e = freacao_e
+    cortante = freacao_e
     maior_cortante = cortante
 
     #se não tiver força de reação nos apoios, significa que não tem carga vertical liquida
@@ -126,8 +124,6 @@ def diagrama_cortante():
     #Descobre o maior valor da forca cortante, para entao comparar com as forcas nos pontos de apoio e poder desenhar o diagrama dentro dos limites
     for i in range(len(qpy)): #qpy são todas as cargas, inclusive as distribuidas que foram transformadas em pontuais e estão em ordenadas de acordo com a posicao
 
-        print("cortante",cortante)
-        print("maior_cortante",maior_cortante)
         ###########problema. atentar que coloquei esse if. A ideia é só contribuir para a alteração da força cortante se nao for carga sobre os apoios
         if round(xiqp[i],2) != round(float(coord_ex_entry.get()),2) and round(xiqp[i],2) != round(float(coord_dx_entry.get()),2):
             cortante = qpy[i]+cortante
@@ -275,14 +271,20 @@ def diagrama_momento_fletor():
     #Calcula os momentos quando se tem apenas cargas pontuais
     if len(valores_qpy)>0 and len(valores_qdy)==0:
         while (pos<=float(coord_dx_entry.get())):
+            mfletor_local=0.0
             for i in range(len(valores_qpy)): #qpy são apenas as cargas pontuais
-                if (pos == xiqp[i]):
-                    if (pos == coord_ap_e) or (pos == round(float(coord_dx_entry.get()),2)):
-                        mfletor.append(0)
+                #problema. Colocando esse if, parte se resolve
+                #if (pos == xiqp[i]):
+                if (pos == coord_ap_e) or (pos == round(float(coord_dx_entry.get()),2)):
+                    mfletor.append(0)
 
-                    else:
-                        mfletor_local = (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) + mfletor_local
-                        mfletor.append(mfletor_local + fey*abs(coord_ap_e - xiqp[i]))
+
+                #problema a ser resolvido. O momento fletor quando se tem apenas cargas pontuais não está calculando corretamente
+                elif pos>=round(xiqp[i],2) and pos != coord_ap_e and pos != round(float(coord_dx_entry.get()),2):
+                    # mfletor_local = (valores_qpy[i]*abs(coord_ap_e-xiqp[i])) + mfletor_local
+                    # mfletor.append(mfletor_local + fey*abs(coord_ap_e - xiqp[i]))
+                    mfletor_local = (valores_qpy[i]*abs(pos-xiqp[i])) + mfletor_local
+                    mfletor.append(mfletor_local+ fey*abs(coord_ap_e - xiqp[i]))
 
 
             pos=round(pos+incremento,2)
@@ -380,7 +382,7 @@ def diagrama_momento_fletor():
     canvas.create_text(xf+5, yv, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="fletor")  #escreve o valor do momento fletor mínimo
 
     #multiplica cada elemento do eixo y (momento fletor) pela proporcionalidade b, de forma que fique dentro das linhas do diagrama
-    mfletor = [(yv-50-j*b) for j in mfletor] 
+    mfletor = [(yv-50+j*b) for j in mfletor] 
 
     #ordena as listas de momento e posicao com base na ordem crescente da posicao
     indices = list(range(len(xiqp)))
