@@ -699,7 +699,7 @@ def diagrama_interativo():
 
     #Tela de desenhos
     frame_diagrama.grid(row=0, column=6, sticky="news", padx=10, pady=10,rowspan=11)
-    fig = Figure(figsize=(5, 5), dpi=100)
+    fig = Figure(figsize=(6, 5.4), dpi=100)
     gs = fig.add_gridspec(5,1)
     diag_cortante = fig.add_subplot(gs[0,0])
     diag_fletor = fig.add_subplot(gs[2,0])
@@ -732,8 +732,8 @@ def diagrama_interativo():
 
     button_quit = Button(master=frame_diagrama, text="Fechar", command=frame_diagrama.grid_forget)
 
-    button_quit.grid(column=9, row=9)
-    toolbar.grid(column=6, row=9, columnspan=3)
+    button_quit.grid(column=6, row=10)
+    toolbar.grid(column=6, row=9, columnspan=4)
     canva.get_tk_widget().grid(column=6, row=0, columnspan=4, rowspan=9)
 
 
