@@ -712,7 +712,7 @@ def diagrama_interativo():
     diag_cortante.spines['top'].set_position('zero')
 
     diag_fletor.plot(x_fletor,m_fletor)
-    diag_fletor.set_ylabel("F (N)")
+    diag_fletor.set_ylabel("M (Nm)")
     diag_fletor.set_title("Diagrama Momento Fletor")
     diag_fletor.spines['right'].set_color('none')
     diag_fletor.spines['top'].set_position('zero')
