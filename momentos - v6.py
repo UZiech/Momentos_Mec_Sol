@@ -3,8 +3,6 @@ from tkinter import messagebox
 from tkinter import ttk
 from pkg_resources import resource_filename
 
-import numpy as np
-from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
 
@@ -175,6 +173,10 @@ def diagrama_cortante():
 
     #desenha o diagrama
     canvas.create_line(par_coordenado,  fill="red", width=2,tags="cortante")
+
+    for i in range(0,len(par_coordenado),2):
+        x_cortante.append((par_coordenado[i]-x0)/a)
+        f_cortante.append((-1*(par_coordenado[i+1]-yv+25)/b))
 
     #Apresenta os valores máximo e mínimo da força cortante
     cortante_text = str(f'{max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)):.2f}') + "N"
@@ -440,6 +442,10 @@ def diagrama_momento_fletor():
         par_coordenado.append(x0+xi*a)
         par_coordenado.append(mfletor[i])
 
+    for i in range(0,len(par_coordenado),2):
+        x_fletor.append((par_coordenado[i]-x0)/a)
+        m_fletor.append((-1*(par_coordenado[i+1]-yv+50)/b))
+
     #Desenha o diagrama
     canvas.create_line(par_coordenado, fill="red", width=2,tags="fletor")
 
@@ -679,45 +685,50 @@ def diagrama_normal():
             par_coordenado.append(x0+xii*a)
             par_coordenado.append(normal[i])
 
-    xm=[]
-    f=[]
     for i in range(0,len(par_coordenado),2):
-        print("par_coordenado[i]",par_coordenado[i])
-        xm.append((par_coordenado[i]-x0)/a)
-        f.append((-1*(par_coordenado[i+1]-yv+50)/b))
-
-    print("a",a)
-    print("b",b)
-    print("x0",x0)
-    print("par_coordenado",par_coordenado)
-    print("xm",xm)
-    print("f",f)
-
+        x_normal.append((par_coordenado[i]-x0)/a)
+        f_normal.append((-1*(par_coordenado[i+1]-yv+50)/b))
 
     #Desenha o diagrama
     canvas.create_line(par_coordenado, fill="red", width=2,tags="normal")
 
+###################################################
+##Diagramas interativos com a bibliotec matplotlib#
+###################################################
+def diagrama_interativo():
+
     #Tela de desenhos
     frame_diagrama.grid(row=0, column=6, sticky="news", padx=10, pady=10,rowspan=11)
-    fig = Figure(figsize=(5, 1.9), dpi=100)
-    t = np.arange(0, 3, .01)
-    diag_cortante = fig.add_subplot()
-    diag_cortante.plot(xm,f)
-    #diag_cortante.plot(t, 2 * np.sin(2 * np.pi * t))
-   # line, = ax.plot(par_coordenado)
-    diag_cortante.set_xlabel("X (m)")
+    fig = Figure(figsize=(5, 5), dpi=100)
+    gs = fig.add_gridspec(5,1)
+    diag_cortante = fig.add_subplot(gs[0,0])
+    diag_fletor = fig.add_subplot(gs[2,0])
+    diag_normal = fig.add_subplot(gs[4,0])
+
+    diag_cortante.plot(x_cortante,f_cortante)
     diag_cortante.set_ylabel("F (N)")
-    diag_cortante.set_title("Diagrama Força Normal")
+    diag_cortante.set_title("Diagrama Força Cortante")
+    diag_cortante.spines['right'].set_color('none')
+    diag_cortante.spines['top'].set_position('zero')
+
+    diag_fletor.plot(x_fletor,m_fletor)
+    diag_fletor.set_ylabel("F (N)")
+    diag_fletor.set_title("Diagrama Momento Fletor")
+    diag_fletor.spines['right'].set_color('none')
+    diag_fletor.spines['top'].set_position('zero')
+
+    diag_normal.plot(x_normal,f_normal)
+    diag_normal.set_xlabel("X (m)")
+    diag_normal.set_ylabel("F (N)")
+    diag_normal.set_title("Diagrama Força Normal")
+    diag_normal.spines['right'].set_color('none')
+    diag_normal.spines['top'].set_position('zero')
 
     canva = FigureCanvasTkAgg(fig, master=frame_diagrama)  # A tk.DrawingArea.
     canva.draw()
 
     toolbar = NavigationToolbar2Tk(canva, frame_diagrama, pack_toolbar=False)
     toolbar.update()
-
-    canva.mpl_connect(
-        "key_press_event", lambda event: print(f"you pressed {event.key}"))
-    canva.mpl_connect("key_press_event", key_press_handler)
 
     button_quit = Button(master=frame_diagrama, text="Fechar", command=frame_diagrama.grid_forget)
 
@@ -756,6 +767,15 @@ def habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_reacao):
     botao_ql.grid_forget()
     botao_reacao.grid_forget()
     frame_grafico.grid_forget()
+
+    del x_normal[0:9999999]
+    del f_normal[0:9999999]
+    del x_cortante[0:9999999]
+    del f_cortante[0:9999999]
+    del x_fletor[0:9999999]
+    del m_fletor[0:9999999]
+
+    print("x_normal", x_normal)
 
 
     botao_insere_qp.grid(column=5, row=1, padx=10, pady=10)
@@ -969,20 +989,17 @@ def desenha():
     canvas.grid(column=6, row=0, padx=10, pady=10, rowspan=10,columnspan=4)
     
     #Inicializa e mostra os botoes que irao chamar as funções para exibir as cargas pontuais ou distribuida
-    botao_qp = Button(frame_grafico, text="Cargas Pontuais", command=desenha_qp)
-    botao_qd = Button(frame_grafico, text="Cargas Distribuidas", command=desenha_qd)
+    botao_qp = Button(frame_grafico, text="Ações Pontuais", command=desenha_qp)
+    botao_qd = Button(frame_grafico, text="Ações Distribuidas", command=desenha_qd)
     botao_reacao = Button(frame_grafico, text="Reação", command=forca_reacao)
-    botao_cortante = Button(frame_grafico, text="Diagrama Cortante", command=diagrama_cortante)
-    botao_fletor = Button(frame_grafico, text="Momento Fletor", command=diagrama_momento_fletor)
-    botao_normal = Button(frame_grafico, text="Diagrama Normal", command=diagrama_normal)
+    botao_diagramas = Button(frame_grafico, text="Diagramas Interativos", command=diagrama_interativo)
     frame_grafico.grid(row=0, column=6, sticky="news", padx=10, pady=10,rowspan=11)
     botao_qp.grid(column=7, row=10, padx=10, pady=10)
     botao_qd.grid(column=8, row=10, padx=10, pady=10)
     botao_reacao.grid(column=9, row=10, padx=10, pady=10)
     botao_sair.grid(column=9, row=11, padx=10, pady=10)
-    botao_cortante.grid(column=6, row=11, padx=10, pady=10)
-    botao_fletor.grid(column=7, row=11, padx=10, pady=10)
-    botao_normal.grid(column=8, row=11, padx=10, pady=10)
+    botao_diagramas.grid(column=6, row=11, padx=10, pady=10)
+
 
 
     diagrama_cortante()
@@ -999,13 +1016,13 @@ def desenha():
 #Funcao que lista as cargas já fornecidas pelo usuario###
 #########################################################
 def listar_cargas():
-    relacao_qp["text"]="Cargas Pontuais\n"
+    relacao_qp["text"]="Ações Pontuais\n"
     for i in range(0,len(qp),3):
         j=i+1
         k=i+2
         relacao_qp["text"] = relacao_qp["text"] + "F" + str(int(i/3)+1) + "= " + str(qp[i]) + "i + " + str(qp[j]) + "j Ponto de atuação X= " + str(qp[k]) + "m.\n"
 
-    relacao_qd["text"] = "Cargas distribuidas\n"
+    relacao_qd["text"] = "Ações distribuidas\n"
     for i in range(0,len(qd),4):
         j=i+1
         k=i+2
@@ -1035,12 +1052,12 @@ def remover_cargas():
     indice=(indice-1)
 
     match tipo:
-        case "Carga pontual":
+        case "Ação pontual":
             qp.pop(3*indice)
             qp.pop(3*indice)
             qp.pop(3*indice)
             
-        case"Carga Distribuida":
+        case"Ação Distribuida":
             qd.pop(4*indice)
             qd.pop(4*indice)
             qd.pop(4*indice)
@@ -1124,17 +1141,17 @@ def valida_entrada(tipo, lista):
                 return False
             if combobox.get() == "Carga pontual":
                 if int(carga_entry.get()) > len(qp)/3:
-                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de cargas já aplicadas!")
+                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de ações já aplicadas!")
                     return False
                 elif int(carga_entry.get()) < 1:
-                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de cargas já aplicadas!")
+                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de ações já aplicadas!")
                     return False
             elif combobox.get() == "Carga Distribuida":
                 if int(carga_entry.get()) > len(qd)/4:
-                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de cargas já aplicadas!")
+                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de ações já aplicadas!")
                     return False
                 elif int(carga_entry.get()) < 1:
-                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de cargas já aplicadas!")
+                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de ações já aplicadas!")
                     return False
 
             remover_cargas()
@@ -1174,11 +1191,11 @@ def valida_entrada(tipo, lista):
                     valores_xqp.append(qp[i+2])
 
                 if min(valores_xqp) < float(coord_ex_entry.get()):
-                    messagebox.showerror(title="Info", message="A Viaga não abrange todas as cargas aplicadas.\nAumente o tamanho da viga ou remova as cargas que estão fora.")
+                    messagebox.showerror(title="Info", message="A Viaga não abrange todas as ações aplicadas.\nAumente o tamanho da viga ou remova as ações que estão fora.")
                     return False
 
                 elif max(valores_xqp) > float(coord_dx_entry.get()):
-                    messagebox.showerror(title="Info", message="A Viaga não abrange todas as cargas aplicadas.\nAumente o tamanho da viga ou remova as cargas que estão fora.")
+                    messagebox.showerror(title="Info", message="A Viaga não abrange todas as ações aplicadas.\nAumente o tamanho da viga ou remova as ações que estão fora.")
                     return False
                 
             #Verifica se existem cargas distribuidas e depois verifica se existem cargas fora das dimensoes da viga
@@ -1190,11 +1207,11 @@ def valida_entrada(tipo, lista):
                     valores_xfqd.append(qd[i+3])
                     
                 if min(valores_xiqd) < float(coord_ex_entry.get()):
-                    messagebox.showerror(title="Info", message="A Viaga não abrange todas as cargas aplicadas.\nAumente o tamanho da viga ou remova as cargas que estão fora.")
+                    messagebox.showerror(title="Info", message="A Viaga não abrange todas as ações aplicadas.\nAumente o tamanho da viga ou remova as ações que estão fora.")
                     return False
 
                 elif max(valores_xfqd) > float(coord_dx_entry.get()):
-                    messagebox.showerror(title="Info", message="A Viaga não abrange todas as cargas aplicadas.\nAumente o tamanho da viga ou remova as cargas que estão fora.")
+                    messagebox.showerror(title="Info", message="A Viaga não abrange todas as ações aplicadas.\nAumente o tamanho da viga ou remova as ações que estão fora.")
                     return False
 
             botao_qp, botao_ql, botao_reacao = desenha()    
@@ -1218,6 +1235,14 @@ xf=440
 #margem inferior no grafico para inicio dos desenhos
 y0=60
 
+#Coordenadas para desenhos dos diagramas
+x_normal = []
+f_normal = []
+x_cortante = []
+f_cortante = []
+x_fletor = []
+m_fletor = []
+
 #Menu
 menubar = Menu(main)
 helpmenu = Menu(menubar, tearoff=0)
@@ -1234,13 +1259,13 @@ main.config(menu=menubar)
 #inicializa e distribui os diversos frames. Conforme forem sendo inseridos os widgets dentro dos frames eles vão aparecendo na interface gráfica
 frame = Frame(main)
 frame.pack()
-frame_qp = LabelFrame(frame, text="Cargas Pontuais")
-frame_qd = LabelFrame(frame, text="Cargas Distribuidas")
-frame_remover_cargas = LabelFrame(frame, text="Remover Cargas")
+frame_qp = LabelFrame(frame, text="Ações Pontuais")
+frame_qd = LabelFrame(frame, text="Ações Distribuidas")
+frame_remover_cargas = LabelFrame(frame, text="Remover Ações")
 frame_apoios = LabelFrame(frame, text="Pontos de apoio")
 frame_etc = LabelFrame(frame, text="")
-frame_grafico = LabelFrame(frame, text="")
-frame_diagrama = LabelFrame(frame, text="")
+frame_grafico = LabelFrame(frame, text="Esquema de ações, apoios e diagramas")
+frame_diagrama = LabelFrame(frame, text="Diagrama interativo")
 
 frame_qp.grid(row=0, column=0, sticky="news", padx=10)
 frame_qd.grid(row=2, column=0, sticky="news", padx=10)
@@ -1265,7 +1290,7 @@ qpfx_entry = Entry(frame_qp, width=10, textvariable=qpfx_default)
 qpfy_entry = Entry(frame_qp, width=10, textvariable=qpfy_default)
 qpxi_entry = Entry(frame_qp, width=10, textvariable=qpxi_default)
 
-texto_qp=Label(frame_qp, text="Carga:")
+texto_qp=Label(frame_qp, text="Ação:")
 texto_qp_fxi=Label(frame_qp, text="Fxi (N)")
 texto_qp_fyi=Label(frame_qp, text="Fyi (N)")
 texto_qp_xi=Label(frame_qp, text="Coordenada Xi (m)")
@@ -1300,7 +1325,7 @@ qdfy_entry = Entry(frame_qd, width=10, textvariable=qdfy_default)
 qdxi_entry = Entry(frame_qd, width=10, textvariable=qdxi_default)
 qdxf_entry = Entry(frame_qd, width=10, textvariable=qdxf_default)
 
-texto_qd=Label(frame_qd, text="Carga:")
+texto_qd=Label(frame_qd, text="Ação:")
 texto_qd_fxi=Label(frame_qd, text="Fxi (N/m)")
 texto_qd_fyi=Label(frame_qd, text="Fyi (N/m)")
 texto_qd_xi=Label(frame_qd, text="X inicial")
@@ -1321,18 +1346,18 @@ botao_insere_qd = Button(frame_qd, text="Inserir", command=lambda: valida_entrad
 botao_insere_qd.grid(column=5, row=3, padx=10, pady=10)
 
 #Remover carga
-texto_remover=Label(frame_remover_cargas, text="Carga número:")
+texto_remover=Label(frame_remover_cargas, text="Ação número:")
 texto_remover.grid(row=4,column=0)
 
 carga_default = StringVar() #numero da carga a ser removida
 carga_default.set("1")
 carga_tipo_default = StringVar() #tipo de carga a ser removida
-carga_tipo_default.set("Carga pontual")
+carga_tipo_default.set("Ação pontual")
 
 carga_entry = Entry(frame_remover_cargas,width=10, textvariable=carga_default)
 carga_entry.grid(row=4, column=1)
 
-combobox = ttk.Combobox(frame_remover_cargas,state="readonly",values=["Carga pontual", "Carga Distribuida"], textvariable=carga_tipo_default)
+combobox = ttk.Combobox(frame_remover_cargas,state="readonly",values=["Ação pontual", "Ação Distribuida"], textvariable=carga_tipo_default)
 combobox.grid(row=4,column=2, padx=10, pady=10)
 
 botao_remover = Button(frame_remover_cargas, text="Remover", command=lambda: valida_entrada("remover",qd))
