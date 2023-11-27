@@ -775,7 +775,6 @@ def habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_reacao):
     del x_fletor[0:9999999]
     del m_fletor[0:9999999]
 
-    print("x_normal", x_normal)
 
 
     botao_insere_qp.grid(column=5, row=1, padx=10, pady=10)
