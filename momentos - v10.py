@@ -10,6 +10,7 @@ from matplotlib.figure import Figure
 ##Diagrama forca cortante##
 ###########################
 def diagrama_cortante():
+    global f_default
     yb=140
     yv=yb-60
     valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
@@ -124,14 +125,14 @@ def diagrama_cortante():
         canvas.create_line(x0,yv-50, xf, yv-50, dash=(10,10), tags="cortante")
         canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="cortante")
         canvas.create_text(x0, yv-25, text="Não há força cortante sobre a viga.", anchor="w", fill="red", font=('Helvetica 10 bold'),tag="cortante")
-        canvas.create_text(x0-20, yv-60, text="Diagrama de esforço cortante", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="cortante")  
+        canvas.create_text(x0-20, yv-60, text="Diagrama de esforço cortante (" + str(f_default) + ")", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="cortante")  
         return False
     
     #Desenha as linhas de base do diagrama e insere o texto informativo
     canvas.create_line(x0,yv-50, xf, yv-50, dash=(10,10), tags="cortante")
     canvas.create_line(x0,yv-25, xf, yv-25, tags="cortante")
     canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="cortante")
-    canvas.create_text(x0-20, yv-60, text="Diagrama de esforço cortante", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="cortante")  
+    canvas.create_text(x0-20, yv-60, text="Diagrama de esforço cortante (" + str(f_default) + ")", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="cortante")  
 
     # proporcao para fazer o desenho do diagrama e sempre considerar a maior forca como o ponto maximo do desenho
     b = 25/abs(max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)))
@@ -163,15 +164,16 @@ def diagrama_cortante():
         f_cortante.append((-1*(par_coordenado[i+1]-yv+25)/b))
 
     #Apresenta os valores máximo e mínimo da força cortante
-    cortante_text = str(f'{max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)):.2f}') + "N"
+    cortante_text = str(f'{max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)):.2f}') + str(f_default)
     canvas.create_text(xf+5, yv-50, text=cortante_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="cortante")  #escreve o valor da cortante maxima na linha superior
-    cortante_text = "-" + str(f'{max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)):.2f}') + "N"
+    cortante_text = "-" + str(f'{max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)):.2f}') + str(f_default)
     canvas.create_text(xf+5, yv, text=cortante_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="cortante")  #escreve o valor da cortante minima na linha inferior
 
 ###########################
 ##Diagrama momento fletor##
 ###########################
 def diagrama_momento_fletor():
+    global f_default, l_default
     yb=240
     yv=yb-30
     valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
@@ -275,12 +277,12 @@ def diagrama_momento_fletor():
 
     for i in range(len(valores_qpy)): #qpy são todas as cargas (as pontuais e as distribuidas que foram transformadas em pontuais). Esse for é para pular entre as secoes/cortes da viga
         mfletor_local=0.0
-        if (xiqp[i] == coord_ap_e) or (xiqp[i] == round(coord_ap_d,2) and xiqp[k] != coord_ap_e and xiqp[k] != round(coord_ap_d,2)):
+        if (xiqp[i] == coord_ap_e) or (xiqp[i] == round(coord_ap_d,2)):
             mfletor.append(0)
 
         else:
             for k in range(len(valores_qpy)): #esse for é para calcular o momento de todas as cargas até chegar no corte
-                if xiqp[k] < xiqp[i]:
+                if xiqp[k] < xiqp[i] and xiqp[k] != coord_ap_e and xiqp[k] != coord_ap_d:
                     mfletor_local = (valores_qpy[k]*abs(xiqp[i]-xiqp[k]))+mfletor_local
             
             mfletor.append(mfletor_local + fey*abs(coord_ap_e - xiqp[i]))
@@ -290,7 +292,7 @@ def diagrama_momento_fletor():
         canvas.create_line(x0,yv-100, xf, yv-100, dash=(10,10), tags="fletor")
         canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="fletor")
         canvas.create_text(x0, yv-50, text="Não há momento fletor na viga.", anchor="w", fill="red", font=('Helvetica 10 bold'),tag="fletor")
-        canvas.create_text(x0-20, yv-110, text="Diagrama do momento fletor", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="fletor")  
+        canvas.create_text(x0-20,yv-110,text="Diagrama do momento fletor ("+str(f_default)+"."+str(l_default)+")",anchor="w",fill="black",font=('Helvetica 10 bold'),tag="fletor")  
         return False
 
     # proporcao para fazer o desenho do diagrama e sempre considerar o maior momento como o ponto maximo/minimo do desenho
@@ -300,12 +302,12 @@ def diagrama_momento_fletor():
     canvas.create_line(x0,yv-100, xf, yv-100, dash=(10,10), tags="fletor")
     canvas.create_line(x0,yv-50, xf, yv-50, tags="fletor")
     canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="fletor")
-    canvas.create_text(x0-20, yv-110, text="Diagrama do momento fletor", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="fletor")
+    canvas.create_text(x0-20, yv-110, text="Diagrama do momento fletor ("+str(f_default)+"."+str(l_default)+")",anchor="w",fill="black",font=('Helvetica 10 bold'),tag="fletor")
 
     #Apresenta os valores máximo e mínimo do momento fletor
-    canvas_text = str(f'{max(list(map(abs,mfletor))):.2f}') + "N"
+    canvas_text = str(f'{max(list(map(abs,mfletor))):.2f}') + str(f_default)
     canvas.create_text(xf+5, yv-100, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="fletor")  #escreve o valor do momento fletor máximo
-    canvas_text = "-" + str(f'{max(list(map(abs,mfletor))):.2f}') + "N"    
+    canvas_text = "-" + str(f'{max(list(map(abs,mfletor))):.2f}') + str(f_default)    
     canvas.create_text(xf+5, yv, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="fletor")  #escreve o valor do momento fletor mínimo
 
     #multiplica cada elemento do eixo y (momento fletor) pela proporcionalidade b, de forma que fique dentro das linhas do diagrama
@@ -345,6 +347,7 @@ def diagrama_momento_fletor():
 ##############################
 def forca_reacao():
 
+    global f_default
     yb=hc-y0
     yv=yb-22
     valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
@@ -434,9 +437,9 @@ def forca_reacao():
         canvas.create_text(x0, yv+60, text="Força de reação nos apoios é igual a zero.", fill="red", font=('Helvetica 10 bold'), anchor=W, tag="reacao")
 
 
-    fey_text = str(f'{fey:.3f}') + "N"
-    fdy_text = str(f'{fdy:.3f}') + "N"
-    fexr_text = str(f'{fexr:.3f}') + "N"
+    fey_text = str(f'{fey:.2f}') + str(f_default)
+    fdy_text = str(f'{fdy:.2f}') + str(f_default)
+    fexr_text = str(f'{fexr:.2f}') + str(f_default)
 
     #esses ifs são para verificar se as forças são maiores que zero para desenhar no sentido correto
     # desenha a força resultante em x no apoio esquerdo. Não tem força resultante em x no ponto direito, pois o apoio é de 1º genero 
@@ -473,6 +476,7 @@ def forca_reacao():
 ##Diagrama força normal##
 #########################
 def diagrama_normal():
+    global f_default
     yb=370
     yv=yb-30
     valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
@@ -540,7 +544,7 @@ def diagrama_normal():
         canvas.create_line(x0,yv-100, xf, yv-100, dash=(10,10), tags="normal")
         canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="normal")
         canvas.create_text(x0, yv-50, text="Não há forças horizontais.", anchor="w", fill="red", font=('Helvetica 10 bold'),tag="normal")
-        canvas.create_text(x0-20, yv-110, text="Diagrama da força normal", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="normal")  
+        canvas.create_text(x0-20, yv-110, text="Diagrama da força normal ("+str(f_default)+")", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="normal")  
         return False
 
     #ordena as listas de normal e posicao com base na ordem crescente da posicao
@@ -553,12 +557,12 @@ def diagrama_normal():
     canvas.create_line(x0,yv-100, xf, yv-100, dash=(10,10), tags="normal")
     canvas.create_line(x0,yv-50, xf, yv-50, tags="normal")
     canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="normal")
-    canvas.create_text(x0-20, yv-110, text="Diagrama da força Normal", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="normal")
+    canvas.create_text(x0-20, yv-110, text="Diagrama da força Normal ("+str(f_default)+")", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="normal")
 
     #Apresenta os valores máximo e mínimo da força normal
-    canvas_text = str(f'{max(max(list(map(abs,normal))),abs(fexr)):.2f}') + "N"
+    canvas_text = str(f'{max(max(list(map(abs,normal))),abs(fexr)):.2f}') + str(f_default)
     canvas.create_text(xf+5, yv-100, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="normal")  #escreve o valor do momento fletor máximo
-    canvas_text = "-" + str(f'{max(max(list(map(abs,normal))),abs(fexr)):.2f}') + "N"    
+    canvas_text = "-" + str(f'{max(max(list(map(abs,normal))),abs(fexr)):.2f}') + str(f_default)
     canvas.create_text(xf+5, yv, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="normal")  #escreve o valor do momento fletor mínimo
 
     # proporcao para fazer o desenho do diagrama e sempre considerar a maior forca normal
@@ -598,6 +602,8 @@ def diagrama_normal():
 ###################################################
 def diagrama_interativo():
 
+    global f_default, l_default
+
     #Tela de desenhos
     frame_diagrama.grid(row=0, column=6, sticky="news", padx=10, pady=10,rowspan=11)
     fig = Figure(figsize=(6, 5.4), dpi=100)
@@ -607,21 +613,21 @@ def diagrama_interativo():
     diag_normal = fig.add_subplot(gs[4,0])
 
     diag_cortante.plot(x_cortante,f_cortante)
-    diag_cortante.set_ylabel("F (N)")
-    diag_cortante.set_title("Diagrama Força Cortante")
+    diag_cortante.set_ylabel("F ("+str(f_default)+")")
+    diag_cortante.set_title("Diagrama Força Cortante ("+str(f_default)+")")
     diag_cortante.spines['right'].set_color('none')
     diag_cortante.spines['top'].set_position('zero')
 
     diag_fletor.plot(x_fletor,m_fletor)
-    diag_fletor.set_ylabel("M (Nm)")
-    diag_fletor.set_title("Diagrama Momento Fletor")
+    diag_fletor.set_ylabel("M ("+str(f_default)+"."+str(l_default)+")")
+    diag_fletor.set_title("Diagrama Momento Fletor ("+str(f_default)+"."+str(l_default)+")")
     diag_fletor.spines['right'].set_color('none')
     diag_fletor.spines['top'].set_position('zero')
 
     diag_normal.plot(x_normal,f_normal)
-    diag_normal.set_xlabel("X (m)")
-    diag_normal.set_ylabel("F (N)")
-    diag_normal.set_title("Diagrama Força Normal")
+    diag_normal.set_xlabel("X ("+str(l_default)+")")
+    diag_normal.set_ylabel("F ("+str(f_default)+")")
+    diag_normal.set_title("Diagrama Força Normal ("+str(f_default)+")")
     diag_normal.spines['right'].set_color('none')
     diag_normal.spines['top'].set_position('zero')
 
@@ -641,6 +647,7 @@ def diagrama_interativo():
 ##Função que habilita novas entradas, para permitir novos calculos##
 ####################################################################
 def habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_reacao):
+    editmenu.entryconfig(1,state=NORMAL)
     qpfx_entry.config(state="normal")
     qpfy_entry.config(state="normal")
     qpxi_entry.config(state="normal")
@@ -700,6 +707,7 @@ def habilita_entradas(botao_novos_valores, botao_qp, botao_ql, botao_reacao):
 ##Função que desabilita novas entradas, para não confundir o usuario##
 ######################################################################
 def desabilita_entradas(botao_qp, botao_ql, botao_reacao):
+    editmenu.entryconfig(1,state=DISABLED)
     qpfx_entry.config(state="disabled")
     qpfy_entry.config(state="disabled")
     qpxi_entry.config(state="disabled")
@@ -926,14 +934,14 @@ def listar_cargas():
     for i in range(0,len(qp),3):
         j=i+1
         k=i+2
-        relacao_qp["text"] = relacao_qp["text"] + "F" + str(int(i/3)+1) + "= " + str(qp[i]) + "i + " + str(qp[j]) + "j Ponto de atuação X= " + str(qp[k]) + "m.\n"
+        relacao_qp["text"] = relacao_qp["text"] + "F" + str(int(i/3)+1) + "= " + str(qp[i]) + "i + " + str(qp[j]) + "j Ponto de atuação X= " + str(qp[k]) +  ".\n"
 
     relacao_qd["text"] = "Ações distribuidas\n"
     for i in range(0,len(qd),4):
         j=i+1
         k=i+2
         z=i+3
-        relacao_qd["text"] = relacao_qd["text"]+"F"+str(int(i/4)+1)+"= "+str(qd[i])+"i + "+str(qd[j])+"j Inicio de aplicação Xi= "+str(qd[k])+"m Fim de aplicação Xf= "+ str(qd[z]) +"m.\n"
+        relacao_qd["text"] = relacao_qd["text"]+"F"+str(int(i/4)+1)+"= "+str(qd[i])+"i + "+str(qd[j])+"j Inicio de aplicação Xi= "+str(qd[k])+". Fim de aplicação Xf= "+ str(qd[z]) +".\n"
 
     # if len(qd) > 0:
     #     botao_insere_qd.grid_forget()
@@ -958,12 +966,12 @@ def remover_cargas():
     indice=(indice-1)
 
     match tipo:
-        case "Ação pontual":
+        case "Pontual":
             qp.pop(3*indice)
             qp.pop(3*indice)
             qp.pop(3*indice)
             
-        case"Ação Distribuida":
+        case"Distribuida":
             qd.pop(4*indice)
             qd.pop(4*indice)
             qd.pop(4*indice)
@@ -985,7 +993,7 @@ def valida_entrada(tipo, lista):
                 return False
             
             if ((float(qpfy_entry.get()))==0) and ((float(qpfx_entry.get()))==0):
-                messagebox.showerror(title="Info", message="Se a carga é igual a zero, então não há carga aplicada. Corrigir.")
+                messagebox.showerror(title="Info", message="Se a ação é igual a zero, então não há ação aplicada. Corrigir.")
                 return False
             
             #só entra nesse for, a partir da segunda carga fornecida. Aí verifica se já tem uma carga pontual no mesmo ponto, fornecida anteriormente e calcula a resultante naquele ponto.
@@ -1026,11 +1034,11 @@ def valida_entrada(tipo, lista):
                 return False
             
             if float(qdxi_entry.get()) == float(qdxf_entry.get()):
-                messagebox.showerror(title="Info", message="Se a carga distribuida está em um único ponto, então trata-se de uma carga pontual. Corrigir")
+                messagebox.showerror(title="Info", message="Se a ação distribuida está em um único ponto, então trata-se de uma ação pontual. Corrigir")
                 return False
             
             if ((float(qdfy_entry.get()))==0) and ((float(qdfx_entry.get()))==0):
-                messagebox.showerror(title="Info", message="Se a carga é igual a zero, então não há carga aplicada. Corrigir.")
+                messagebox.showerror(title="Info", message="Se a ação é igual a zero, então não há ação aplicada. Corrigir.")
                 return False
 
             lista.append(round(float(qdfx_entry.get()),2))
@@ -1045,19 +1053,19 @@ def valida_entrada(tipo, lista):
             except:
                 messagebox.showerror(title="Info", message="Somente números positivos inteiros.")
                 return False
-            if combobox.get() == "Ação pontual":
+            if combobox.get() == "Pontual":
                 if int(carga_entry.get()) > len(qp)/3:
-                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de ações já aplicadas!")
+                    messagebox.showerror(title="Info", message="Não existe a referida ação aplicada.\nDica: verifique o índice da ação na listagem de ações já aplicadas!")
                     return False
                 elif int(carga_entry.get()) < 1:
-                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de ações já aplicadas!")
+                    messagebox.showerror(title="Info", message="Não existe a referida ação aplicada.\nDica: verifique o índice da ação na listagem de ações já aplicadas!")
                     return False
-            elif combobox.get() == "Ação Distribuida":
+            elif combobox.get() == "Distribuida":
                 if int(carga_entry.get()) > len(qd)/4:
-                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de ações já aplicadas!")
+                    messagebox.showerror(title="Info", message="Não existe a referida ação aplicada.\nDica: verifique o índice da ação na listagem de ações já aplicadas!")
                     return False
                 elif int(carga_entry.get()) < 1:
-                    messagebox.showerror(title="Info", message="Não existe a referida carga aplicada.\nDica: verifique o índice da carga na listagem de ações já aplicadas!")
+                    messagebox.showerror(title="Info", message="Não existe a referida ação aplicada.\nDica: verifique o índice da ação na listagem de ações já aplicadas!")
                     return False
 
             remover_cargas()
@@ -1085,7 +1093,7 @@ def valida_entrada(tipo, lista):
                 return False
             
             if (len(qp) == 0) and (len(qd) == 0):
-                messagebox.showerror(title="Info", message="Necessário lançar ao menos 1 carga, seja pontual ou continua.")
+                messagebox.showerror(title="Info", message="Necessário lançar ao menos 1 força de ação, seja pontual ou continua.")
                 return False
 
 
@@ -1122,7 +1130,96 @@ def valida_entrada(tipo, lista):
 
             botao_qp, botao_ql, botao_reacao = desenha()    
             desabilita_entradas(botao_qp, botao_ql, botao_reacao)
+
+#####################################################################
+##Janela grafica que permite a seleção das preferencias do programa##
+#####################################################################
+def configuracoes():
+    janela_configuracoes = Toplevel()
+    janela_configuracoes.title("Preferências.")
+    resource1 = resource_filename(__name__, 'favicon.ico')
+    janela_configuracoes.iconbitmap(resource1)
+
+    frame = Frame(janela_configuracoes)
+    frame.pack()
+    frame_forcas = LabelFrame(frame, text="Unidade de força")
+    frame_comprimento = LabelFrame(frame, text="Unidade de comprimento")
+    frame_forcas.grid(row=0, column=0, sticky="news", padx=10)
+    frame_comprimento.grid(row=2, column=0, sticky="news", padx=10)
+
+    #combobox para unidades de força
+    combobox_forca = ttk.Combobox(frame_forcas,state="readonly",values=["N - Newton", "kgf - Quilograma força", "dyn - Dina", "tf - tonelada força", "lbf - libra-força"])
+    combobox_forca.current(0)
+    combobox_forca.grid(row=0,column=1, padx=10, pady=10)
+    
+    #combobox para unidades de comprimento
+    combobox_comp = ttk.Combobox(frame_comprimento,state="readonly",values=["m - metro", "cm - centimetro", "mm - milimetro", "ft - pe", "in - polegada"])
+    combobox_comp.current(0)
+    combobox_comp.grid(row=1,column=1, padx=10, pady=10)
+
+    #essa funcao, de fato, atribui as unidades selecionados pelo usuario nas variaveis que serao utilizadas para exibir informacoes nas janelas
+    def define_preferencias():
+        global fxip_default, fyip_default,coord_xip_default,f_default,l_default,fxid_default,fyid_default,coord_xid_default,coord_xfd_default,coord_ape_default,coord_apd_default
+        
+        un_forca=combobox_forca.get()
+
+        match un_forca:
+            case "N - Newton":
+               un_f="N"
+                
+                     
+            case "kgf - Quilograma força":
+                un_f="kgf"
+                
+ 
+            case "dyn - Dina":
+                un_f="dyn"
+                
+ 
+            case "tf - tonelada força":
+                un_f="tf"
+                
+ 
+            case "lbf - libra-força":
+                un_f="lbf"
+ 
+        un_comp=combobox_comp.get()
+        match un_comp:
+            case "m - metro":
+                un_c="m"
             
+            case "cm - centimetro":
+                un_c="cm"
+ 
+            case "mm - milimetro":
+                un_c="mm"
+ 
+            case "ft - pe":
+                un_c="ft"
+ 
+            case "in - polegada":
+                un_c="in"
+
+        #Define as variaveis que poderao dinamicamente, alterar os labels de orientacao ao usuario na janela principal
+        fxip_default.set("Fxi ("+str(un_f)+")")
+        fyip_default.set("Fyi ("+str(un_f)+")")
+        fxid_default.set("Fxi ("+str(un_f)+"/"+str(un_c)+")")
+        fyid_default.set("Fyi ("+str(un_f)+"/"+str(un_c)+")")
+        f_default=str(un_f)
+
+        l_default=str(un_c)
+        coord_xip_default.set("Coordenada Xi (" + str(un_c)+")")
+        coord_xid_default.set("X inicial (" + str(un_c)+")")
+        coord_xfd_default.set("X final (" + str(un_c)+")")
+        coord_ape_default.set("Apoio esquerdo (" + str(un_c) + "):")
+        coord_apd_default.set("Apoio direito (" + str(un_c) + "):")
+
+        #fecha a janela que permite a seleção das unidades
+        janela_configuracoes.destroy()
+    
+    botao_definir = Button(frame, text = 'Definir', command = define_preferencias)
+    botao_definir.grid(row = 2, column = 1)
+
 ###################################
 ##Função Main - Interface Gráfica##
 ###################################
@@ -1144,6 +1241,29 @@ y0=60
 #Máxima força de reação nos pontos de apoio
 r_max = []
 
+#labels para unidades de medida padrao. Essas variaveis servirao de label dinamico para os campos de entrada. Precisam ser dinamicos pois o usuário pode alterar as unidades de medida
+fxip_default = StringVar()
+fyip_default = StringVar()
+coord_xip_default = StringVar()
+fxid_default = StringVar()
+fyid_default = StringVar()
+coord_xid_default = StringVar()
+coord_xfd_default = StringVar()
+coord_ape_default = StringVar()
+coord_apd_default = StringVar()
+
+fxip_default.set("Fxi (N)")
+fyip_default.set("Fyi (N)")
+coord_xip_default.set("Coordenada Xi (m)")
+fxid_default.set("Fxi (N/m)")
+fyid_default.set("Fyi (N/m)")
+coord_xid_default.set("X inicial (m)")
+coord_xfd_default.set("X final (m)")
+coord_ape_default.set("Apoio esquerdo (m):")
+coord_apd_default.set("Apoio direito (m):")
+f_default="N"
+l_default="m"
+
 #Coordenadas para desenhos dos diagramas
 x_normal = []
 f_normal = []
@@ -1152,8 +1272,17 @@ f_cortante = []
 x_fletor = []
 m_fletor = []
 
-#Menu
+###
+###Configurações do menu
+###
 menubar = Menu(main)
+
+#menu editar
+editmenu = Menu(menubar, tearoff=0)
+menubar.add_cascade(label="Editar", menu=editmenu)
+editmenu.add_command(label="Preferencias", command=configuracoes)
+
+#menu ajuda
 helpmenu = Menu(menubar, tearoff=0)
 helpmenu.add_command(label="Sobre", command=lambda: messagebox.showinfo(title="Info", message="Programa para cálculo do momento fletor, força cortante e normal em uma viga biapoiada.\n\
 Desenvolvido em Python e interface gráfica feita com a biblioteca tkinter.\n\n\
@@ -1161,9 +1290,10 @@ Mecanica dos Solidos 1 - 2º Semestre de 2023\n\
 Professor Honorato\n\n\
 Aluno:\n\
 Ulisses Sebastian Ziech - 222026770"))
-
 menubar.add_cascade(label="Ajuda", menu=helpmenu)
+
 main.config(menu=menubar)
+
 
 #inicializa e distribui os diversos frames. Conforme forem sendo inseridos os widgets dentro dos frames eles vão aparecendo na interface gráfica
 frame = Frame(main)
@@ -1200,9 +1330,9 @@ qpfy_entry = Entry(frame_qp, width=10, textvariable=qpfy_default)
 qpxi_entry = Entry(frame_qp, width=10, textvariable=qpxi_default)
 
 texto_qp=Label(frame_qp, text="Ação:")
-texto_qp_fxi=Label(frame_qp, text="Fxi (N)")
-texto_qp_fyi=Label(frame_qp, text="Fyi (N)")
-texto_qp_xi=Label(frame_qp, text="Coordenada Xi (m)")
+texto_qp_fxi=Label(frame_qp, textvariable=fxip_default ) #esses labels são alterados pela função que permite ao usuario selecionar as unidades de forca e comprimento
+texto_qp_fyi=Label(frame_qp, textvariable=fyip_default)
+texto_qp_xi=Label(frame_qp, textvariable=coord_xip_default)
 
 texto_qp.grid(row=1, column=0, padx=5, pady=5)
 texto_qp_fxi.grid(row=0, column=1, padx=5, pady=5)
@@ -1235,10 +1365,10 @@ qdxi_entry = Entry(frame_qd, width=10, textvariable=qdxi_default)
 qdxf_entry = Entry(frame_qd, width=10, textvariable=qdxf_default)
 
 texto_qd=Label(frame_qd, text="Ação:")
-texto_qd_fxi=Label(frame_qd, text="Fxi (N/m)")
-texto_qd_fyi=Label(frame_qd, text="Fyi (N/m)")
-texto_qd_xi=Label(frame_qd, text="X inicial")
-texto_qd_xf=Label(frame_qd, text="X final")
+texto_qd_fxi=Label(frame_qd, textvariable=fxid_default)
+texto_qd_fyi=Label(frame_qd, textvariable=fyid_default)
+texto_qd_xi=Label(frame_qd, textvariable=coord_xid_default)
+texto_qd_xf=Label(frame_qd, textvariable=coord_xfd_default)
 
 texto_qd.grid(row=3, column=0)
 texto_qd_fxi.grid(row=2, column=1, padx=5, pady=5)
@@ -1261,12 +1391,12 @@ texto_remover.grid(row=4,column=0)
 carga_default = StringVar() #numero da carga a ser removida
 carga_default.set("1")
 carga_tipo_default = StringVar() #tipo de carga a ser removida
-carga_tipo_default.set("Ação pontual")
+carga_tipo_default.set("Pontual")
 
 carga_entry = Entry(frame_remover_cargas,width=10, textvariable=carga_default)
 carga_entry.grid(row=4, column=1)
 
-combobox = ttk.Combobox(frame_remover_cargas,state="readonly",values=["Ação pontual", "Ação Distribuida"], textvariable=carga_tipo_default)
+combobox = ttk.Combobox(frame_remover_cargas,state="readonly",values=["Pontual", "Distribuida"], textvariable=carga_tipo_default)
 combobox.grid(row=4,column=2, padx=10, pady=10)
 
 botao_remover = Button(frame_remover_cargas, text="Remover", command=lambda: valida_entrada("remover",qd))
@@ -1281,8 +1411,8 @@ coord_dx_default.set("2.00")
 coord_ex_entry = Entry(frame_apoios, width=10, textvariable=coord_ex_default)
 coord_dx_entry = Entry(frame_apoios, width=10, textvariable=coord_dx_default)
 
-texto_apoio_e=Label(frame_apoios, text="Apoio esquerdo (m):")
-texto_apoio_d=Label(frame_apoios, text="Apoio direito (m)")
+texto_apoio_e=Label(frame_apoios, textvariable=coord_ape_default)
+texto_apoio_d=Label(frame_apoios, textvariable=coord_apd_default)
 texto_apoio_e.grid(row=5, column=0, padx=5, pady=5)
 texto_apoio_d.grid(row=5, column=3, padx=5, pady=5)
 
