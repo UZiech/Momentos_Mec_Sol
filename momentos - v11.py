@@ -546,7 +546,7 @@ def diagrama_normal():
 
         while (pos<valores_xfqd[i]):
             qpx.append(valores_qdx[i]*incremento)
-            xiqp.append(pos)
+            xiqp.append(pos+incremento/2)
             pos=pos+incremento
     
     #Força de reação x no ponto de apoio esquerdo
