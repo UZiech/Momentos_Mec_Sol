@@ -10,13 +10,16 @@ from matplotlib.figure import Figure
 ##Diagrama forca cortante##
 ###########################
 def diagrama_cortante():
+    
     global f_default
     yb=140
     yv=yb-60
     valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
     coord_ap_e = float(coord_ex_entry.get())
     coord_ap_d = float(coord_dx_entry.get())
-    a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
+    coord_iv = float(coord_iv_entry.get())
+    coord_fv = float(coord_fv_entry.get())
+    a=(xf-x0)/(coord_fv-coord_iv) #conversao proporcional ao valor fornecido para o comprimento da viga
 
     carga_efetiva = 0.0
     fey=0.0 #força resultante em y, no apoio esquerdo devido as cargas pontuais
@@ -56,7 +59,7 @@ def diagrama_cortante():
         Frql=float(valores_qdy[i]*dql)         #forca resultande em y devido a carga distribuida
         soma_fdy=soma_fdy+Frql
         xefql=valores_xiqd[i]+dql/2    #local efetivo de aplicacao da forca resultante da carga distribuida
-        feyd=feyd-(valor_dist-abs(coord_ap_e-xefql))*Frql  #somatorio dos momentos, devido a aplicacao das forca resultande no ponto de aplicacao da força, devido a carga distribuida
+        feyd=feyd-(coord_ap_d-xefql)*Frql  #somatorio dos momentos, devido a aplicacao das forca resultande no ponto de aplicacao da força, devido a carga distribuida
 
     feyd=(feyd/valor_dist)
     fdyd=-(feyd+soma_fdy)
@@ -65,41 +68,51 @@ def diagrama_cortante():
     #somatorio dos momentos deve ser igual a zero. Fazendo em relação ao ponto direito e resolvendo para fey
     for j in range(len(valores_qpy)):
 
-        #acha a distancia entre a coordenada do ponto de apoio esquerdo (utilizado como origem para fazer os desenhos) e o ponto de aplicação da força.
-        xi=abs(coord_ap_e-valores_xiqp[j])
-        #fey = fey+(valor_dist-xi)*valores_qpy[j]
-
+        #acha a distancia entre a coordenada do ponto de apoio direito e o local de aplicacao da carga-j-ésima.
         #Quando a força é aplicada exatamente sobre os pontos de apoio, não deve contribuir para ter força cortante
         if (round(valores_xiqp[j],2) != round(coord_ap_e,2)) and (round(valores_xiqp[j],2) != round(coord_ap_d,2)):
-            fey = fey+(valor_dist-xi)*valores_qpy[j]
+            fey = fey+(coord_ap_d-valores_xiqp[j])*valores_qpy[j]
             carga_efetiva = carga_efetiva + valores_qpy[j]
-
 
     fey=-(fey/valor_dist)   
     #somatorio das forças deve ser igual a zero. Considerando os dois pontos de apoio direito e esquerdo, com componentes x e y
     fdy= -(fey+carga_efetiva)
 
+    #a força de reação nos apoios é a soma devido às ações pontuais e às distribuidas
     freacao_e=fey+feyd 
     freacao_d=fdy+fdyd
 
-    cortante=freacao_e
-    fcortante_e = cortante
-    maior_cortante = cortante
+    fcortante_e = 0.0
+    cortante = 0.0
+    maior_cortante = 0.0
     
     #transforma as cargas distribuidas em cargas pontuais, colocando as cargas dentro da lista de cargas pontuais e as posições de ação das cargas dentro da lista de posicao de ação das cargas pontuais
-    qpy=valores_qpy
     qdy=valores_qdy
-    xiqp = valores_xiqp
     xiqd=valores_xiqd
     xfqd=valores_xfqd
+
+    qpy = []
+    xiqp = []
+
+    #coloca dentro da variavel qpy com seus respectivos pontos de acao, somente as forcas que não estejam exatamente sobre os pontos de apoio
+    for i in range(len(valores_xiqp)):
+        if (valores_xiqp[i] != coord_ap_e) and (valores_xiqp[i] != coord_ap_d):
+            qpy.append(valores_qpy[i])
+            xiqp.append(valores_xiqp[i])
+
+    # #Trata todas as forcas atuantes sobre a viga como pontuais, inclusive as reações dos pontos de apoio
+    qpy.append(freacao_e)
+    xiqp.append(coord_ap_e)
+    qpy.append(freacao_d)
+    xiqp.append(coord_ap_d)
 
     for i in range(len(qdy)):
         incremento = abs(xfqd[i]-xiqd[i])/100
         pos = xiqd[i]
 
-        while (pos<=xfqd[i]):
+        while (pos<xfqd[i]):
             qpy.append(qdy[i]*incremento)
-            xiqp.append(pos)
+            xiqp.append(pos+incremento/2)
             pos=pos+incremento
 
     #ordena as listas de força e posicao com base na ordem crescrente da posicao
@@ -111,11 +124,11 @@ def diagrama_cortante():
 
     ############
     #Descobre o maior valor da forca cortante, para entao comparar com as forcas nos pontos de apoio e poder desenhar o diagrama dentro dos limites
-    for i in range(len(qpy)): #qpy são todas as cargas, inclusive as distribuidas que foram transformadas em pontuais e estão em ordenadas de acordo com a posicao
+    for i in range(len(qpy)): #qpy são todas as cargas, inclusive as reações dos pontos de apoio e as distribuidas que foram transformadas em pontuais e estão em ordenadas de acordo com a posicao
 
-        ###########problema. atentar que coloquei esse if. A ideia é só contribuir para a alteração da força cortante se nao for carga sobre os apoios
-        if round(xiqp[i],2) != round(coord_ap_e,2) and round(xiqp[i],2) != round(coord_ap_d,2):
-            cortante = qpy[i]+cortante
+        ###########Só contribui para a alteração da força cortante se nao for carga exatamente sobre os apoios
+        #if round(xiqp[i],2) != round(coord_ap_e,2) and round(xiqp[i],2) != round(coord_ap_d,2):
+        cortante = qpy[i]+cortante
 
         if abs(cortante)>abs(maior_cortante):
             maior_cortante=cortante
@@ -135,18 +148,25 @@ def diagrama_cortante():
     canvas.create_text(x0-20, yv-60, text="Diagrama de esforço cortante (" + str(f_default) + ")", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="cortante")  
 
     # proporcao para fazer o desenho do diagrama e sempre considerar a maior forca como o ponto maximo do desenho
-    b = 25/abs(max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)))
+    #b = 25/abs(max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)))
+    b = 25/abs(maior_cortante)
 
     #Calcula as forças cortantes devido a cada uma das cargas e cria a lista par ordenado para desenhar o diagrama
-    par_coordenado = [x0,yv-25,x0,yv-25-fcortante_e*b] #coordenadas do ponto de apoio esquedo e da primeira força cortante
+    #par_coordenado = [x0,yv-25,x0,yv-25-fcortante_e*b] #coordenadas do ponto de apoio esquedo e da primeira força cortante
+    par_coordenado = [x0,yv-25] #coordenadas do inicio da viga
     for i in list(range(len(qpy))):
-        xi=abs(float(coord_ex_entry.get())-xiqp[i])
-
+        xi=abs(float(coord_iv_entry.get())-xiqp[i])
+        
         par_coordenado.append(x0+xi*a)
         par_coordenado.append(yv-25-fcortante_e*b)
-        
-        if round(xiqp[i],2) != round(coord_ap_e,2) and round(xiqp[i],2) != round(coord_ap_d,2):
-            fcortante_e = qpy[i]+fcortante_e
+
+        fcortante_e = qpy[i]+fcortante_e
+        # if round(xiqp[i],2) != round(coord_ap_e,2) and round(xiqp[i],2) != round(coord_ap_d,2):
+        #     fcortante_e = qpy[i]+fcortante_e
+        # elif round(xiqp[i],2) == round(coord_ap_e,2):
+        #     fcortante_e = freacao_e+fcortante_e
+        # elif round(xiqp[i],2) == round(coord_ap_d,2):
+        #     fcortante_e = freacao_d+fcortante_e
 
         par_coordenado.append(x0+xi*a)
         par_coordenado.append(yv-25-fcortante_e*b)
@@ -156,17 +176,21 @@ def diagrama_cortante():
     par_coordenado.append(xf)
     par_coordenado.append(yv-25)
 
+
     #desenha o diagrama
     canvas.create_line(par_coordenado,  fill="red", width=2,tags="cortante")
 
+    #converte os valores do par_coordenado que estão feitos para aparecer no canvas, para valores que podem ser usados no matplotlib
     for i in range(0,len(par_coordenado),2):
         x_cortante.append((par_coordenado[i]-x0)/a)
         f_cortante.append((-1*(par_coordenado[i+1]-yv+25)/b))
 
     #Apresenta os valores máximo e mínimo da força cortante
-    cortante_text = str(f'{max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)):.2f}') + str(f_default)
+    #cortante_text = str(f'{max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)):.2f}') + str(f_default)
+    cortante_text = str(f'{abs(maior_cortante):.2f}') + str(f_default)
     canvas.create_text(xf+5, yv-50, text=cortante_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="cortante")  #escreve o valor da cortante maxima na linha superior
-    cortante_text = "-" + str(f'{max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)):.2f}') + str(f_default)
+    #cortante_text = "-" + str(f'{max(abs(freacao_e),abs(freacao_d),abs(maior_cortante)):.2f}') + str(f_default)
+    cortante_text = "-" + str(f'{abs(maior_cortante):.2f}') + str(f_default)
     canvas.create_text(xf+5, yv, text=cortante_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="cortante")  #escreve o valor da cortante minima na linha inferior
 
 ###########################
@@ -176,10 +200,12 @@ def diagrama_momento_fletor():
     global f_default, l_default
     yb=240
     yv=yb-30
-    valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
     coord_ap_e = float(coord_ex_entry.get())
     coord_ap_d = float(coord_dx_entry.get())
-    a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
+    coord_iv = float(coord_iv_entry.get())
+    coord_fv = float(coord_fv_entry.get())
+    valor_dist=abs(coord_ap_d-coord_ap_e)
+    a=(xf-x0)/(coord_fv-coord_iv) #conversao proporcional ao valor fornecido para o comprimento da viga
 
     valores_qdy = []
     valores_xiqd = []
@@ -191,7 +217,6 @@ def diagrama_momento_fletor():
     mfletor = []
     par_coordenado = []
     
-
     #se já tinha algo desenhado, apaga e não faz mais nada
     if canvas.gettags("fletor"):
         canvas.delete("fletor")
@@ -223,7 +248,7 @@ def diagrama_momento_fletor():
         Frql=float(valores_qdy[i]*dql)         #forca resultande em y devido a carga distribuida
         soma_fdy=soma_fdy+Frql
         xefql=valores_xiqd[i]+dql/2    #local efetivo de aplicacao da forca resultante da carga distribuida
-        feyd=feyd-(valor_dist-abs(coord_ap_e-xefql))*Frql  #somatorio dos momentos, devido a aplicacao das forca resultande no ponto de aplicacao da força, devido a carga distribuida
+        feyd=feyd-(coord_ap_d-xefql)*Frql  #somatorio dos momentos, devido a aplicacao das forca resultande no ponto de aplicacao da força, devido a carga distribuida
 
     feyd=(feyd/valor_dist)
     fdyd=-(feyd+soma_fdy)
@@ -233,11 +258,9 @@ def diagrama_momento_fletor():
     #somatorio dos momentos deve ser igual a zero. Fazendo em relação ao ponto direito e resolvendo para fey
     for j in range(len(valores_qpy)):
         if (round(valores_xiqp[j],2) != round(coord_ap_e,2)) and (round(valores_xiqp[j],2) != round(coord_ap_d,2)):
-            #acha a distancia entre a coordenada do ponto de apoio esquerdo (utilizado como origem para fazer os desenhos) e o ponto de aplicação da força.
-            xi=abs(coord_ap_e-valores_xiqp[j])
-            fey = fey+(valor_dist-xi)*valores_qpy[j]
-    
-        
+            #acha a distancia entre a coordenada do ponto de apoio direito e o ponto de aplicação da força.
+            fey = fey+(coord_ap_d-valores_xiqp[j])*valores_qpy[j]
+          
     fey=-(fey/valor_dist)   
     #somatorio das forças deve ser igual a zero. Considerando os dois pontos de apoio direito e esquerdo, com componentes x e y
     fdy= -(fey+sum(valores_qpy))
@@ -245,47 +268,48 @@ def diagrama_momento_fletor():
     fey=fey+feyd #fazendo fey ser a força resultante em y no apoio esquerdo (somatorio das cargas distribuidas e pontuais). O ideal seria uma outra variavel para facilitar a compreensão, mas aí precisaria editar o trecho do código que faz o desenho do gráfico, para fazer referencia à nova variavel.
     fdy=fdy+fdyd #fazendo fey ser a força resultante em y no apoio direito (somatorio das cargas distribuidas e pontuais). O ideal seria uma outra variavel para facilitar a compreensão, mas aí precisaria editar o trecho do código que faz o desenho do gráfico, para fazer referencia à nova variavel.
 
-
     ################################################################################Calculo da reacao acaba aqui##################################################################
+    qpy = []
+    xiqp = []
 
-    xiqp = valores_xiqp
+    #coloca dentro da variavel qpy com seus respectivos pontos de acao, somente as forcas que não estejam exatamente sobre os pontos de apoio
+    for i in range(len(valores_qpy)):
+        if (valores_xiqp[i] != coord_ap_e) and (valores_xiqp[i] != coord_ap_d):
+            qpy.append(valores_qpy[i])
+            xiqp.append(valores_xiqp[i])
+
+    # #Trata todas as forcas atuantes sobre a viga como pontuais, inclusive as reações dos pontos de apoio
+    qpy.append(fey)
+    xiqp.append(coord_ap_e)
+    qpy.append(fdy)
+    xiqp.append(coord_ap_d)
 
     #transforma as cargas distribuidas em cargas pontuais. divide o intervalo em 100.
     for i in range(len(valores_qdy)):
-        # if (abs(valores_xfqd[i]-valores_xiqd[i])<5):
-        #     incremento=0.01
-        # else:
-        #     incremento = abs(valores_xfqd[i]-valores_xiqd[i])/2000
-        
-        pos = valores_xiqd[i]
 
+        pos = valores_xiqd[i]
         incremento = abs(valores_xfqd[i]-valores_xiqd[i])/100
+
         while (pos<=valores_xfqd[i]):
-            valores_qpy.append(valores_qdy[i]*incremento)
+            qpy.append(valores_qdy[i]*incremento)
             xiqp.append(pos+incremento/2) #o ponto de ação da força pontual que foi convertida de força distribuida fica no centro do retangulo diferencial criado.
             pos=pos+incremento
 
     #ordena as listas de carga pontual e posicao com base na ordem crescente da posicao
     indices = list(range(len(xiqp)))
     indices.sort(key=lambda i: xiqp[i])
-    valores_qpy = [valores_qpy[i] for i in indices]
+    qpy = [qpy[i] for i in indices]
     xiqp = [xiqp[i] for i in indices]
 
     #calcula os momentos devidos as cargas pontuais e distribuidas ao longo de todo o comprimento da viga
-    pos=round(coord_ap_e,2)
-    mfletor_local=0.0
 
-    for i in range(len(valores_qpy)): #qpy são todas as cargas (as pontuais e as distribuidas que foram transformadas em pontuais). Esse for é para pular entre as secoes/cortes da viga
+    for i in range(len(qpy)): #qpy são todas as cargas (as pontuais, as reações dos apoios e as distribuidas que foram transformadas em pontuais). Esse for é para pular entre as secoes/cortes da viga
         mfletor_local=0.0
-        if (xiqp[i] == coord_ap_e) or (xiqp[i] == round(coord_ap_d,2)):
-            mfletor.append(0)
-
-        else:
-            for k in range(len(valores_qpy)): #esse for é para calcular o momento de todas as cargas até chegar no corte
-                if xiqp[k] < xiqp[i] and xiqp[k] != coord_ap_e and xiqp[k] != coord_ap_d:
-                    mfletor_local = (valores_qpy[k]*abs(xiqp[i]-xiqp[k]))+mfletor_local
+        for k in range(len(qpy)): #esse for é para calcular o momento de todas as cargas até chegar no corte
+            if xiqp[k] < xiqp[i]:
+                mfletor_local = (qpy[k]*abs(xiqp[i]-xiqp[k]))+mfletor_local
             
-            mfletor.append(mfletor_local + fey*abs(coord_ap_e - xiqp[i]))
+        mfletor.append(mfletor_local)
     
     #se não tiver momento fletor, não existe diagrama do momento fletor
     if max(list(map(abs,mfletor))) == 0.0:
@@ -313,24 +337,16 @@ def diagrama_momento_fletor():
     #multiplica cada elemento do eixo y (momento fletor) pela proporcionalidade b, de forma que fique dentro das linhas do diagrama
     mfletor = [(yv-50+j*b) for j in mfletor] 
 
-    #ordena as listas de momento e posicao com base na ordem crescente da posicao
-    indices = list(range(len(xiqp)))
-    indices.sort(key=lambda i: xiqp[i])
-
-    mfletor = [mfletor[i] for i in indices]
-    xiqp = [xiqp[i] for i in indices]
-
     #insere na primeira e ultima posicao da lista do momento fletor e da posicao do momento fletor, as coordenadas e momento nos pontos de apoio
     mfletor.insert(0,yv-50)
+    xiqp.insert(0,coord_iv)
     mfletor.append(yv-50)
-    xiqp.insert(0,coord_ap_e)
-    xiqp.append(float(coord_dx_entry.get()))
-
-
+    xiqp.append(coord_fv)
 
     #cria a lista par coordenado, com a posicao e o momento de todas as cargas e dos pontos de apoio
     for i in range(len(mfletor)):
-        xi=abs(coord_ap_e-xiqp[i])
+        #xi=abs(coord_ap_e-xiqp[i])
+        xi=abs(coord_iv-xiqp[i])
         par_coordenado.append(x0+xi*a)
         par_coordenado.append(mfletor[i])
 
@@ -493,7 +509,7 @@ def diagrama_normal():
     yv=yb-30
     valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
     coord_ap_e = float(coord_ex_entry.get())
-    a=(xf-x0)/valor_dist #conversao proporcional ao valor fornecido para o comprimento da viga
+    a=(xf-x0)/(float(coord_fv_entry.get())-float(coord_iv_entry.get())) #conversao proporcional ao valor fornecido para o comprimento da viga
 
     valores_qdx = []
     valores_xiqd = []
@@ -538,6 +554,10 @@ def diagrama_normal():
     #Força de reação x no ponto de apoio esquerdo
     fexr = -sum(qpx)
 
+    #adiciona na lista de forças horizontais e suas respectivas posicoes, a força resultante em x no ponto de apoio esquerdo
+    xiqp.append(float(coord_ex_entry.get()))
+    qpx.append(fexr)
+
     #ordena as listas de carga pontual e posicao com base na ordem crescente da posicao
     indices = list(range(len(xiqp)))
     indices.sort(key=lambda i: xiqp[i])
@@ -546,7 +566,7 @@ def diagrama_normal():
     xiqp = [xiqp[i] for i in indices]
 
     #Calcula a forca em x, em cada local que possui carga
-    somatorio_forca_x=fexr
+    somatorio_forca_x=0.0
     for i in range(len(xiqp)):
         somatorio_forca_x = qpx[i]+somatorio_forca_x
         normal.append(somatorio_forca_x)
@@ -584,10 +604,10 @@ def diagrama_normal():
     normal = [(yv-50+j*b) for j in normal] 
 
     #Cria a lista par ordenado para desenhar o diagrama
-    par_coordenado = [x0,yv-50,x0,yv-50+fexr*b,x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), yv-50+fexr*b] #coordenadas do ponto de apoio esquerdo até a primeira carga
+    #par_coordenado = [x0,yv-50,x0,yv-50+fexr*b,x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), yv-50+fexr*b] #coordenadas do ponto de apoio esquerdo até a primeira carga
     
     for i in list(range(len(qpx))):
-        xi=abs(float(coord_ex_entry.get())-xiqp[i])
+        xi=abs(float(coord_iv_entry.get())-xiqp[i])
 
         if i == (len(qpx)-1): #se for a ultima carga, desce para o eixo x e segue até o final
             par_coordenado.append(x0+xi*a)
@@ -596,7 +616,7 @@ def diagrama_normal():
             par_coordenado.append(yv-50)
 
         else: #se nao for a ultima carga, continua desenhando o diagrama
-            xii=abs(float(coord_ex_entry.get())-xiqp[i+1])
+            xii=abs(float(coord_iv_entry.get())-xiqp[i+1])
             par_coordenado.append(x0+xi*a)
             par_coordenado.append(normal[i])
             par_coordenado.append(x0+xii*a)
@@ -1350,7 +1370,7 @@ editmenu.add_command(label="Preferencias", command=configuracoes)
 #menu ajuda
 helpmenu = Menu(menubar, tearoff=0)
 helpmenu.add_command(label="Sobre", command=lambda: messagebox.showinfo(title="Info", message="Programa para cálculo do momento fletor, força cortante e normal em uma viga biapoiada.\n\
-Desenvolvido em Python e interface gráfica feita com a biblioteca tkinter.\n\n\
+Desenvolvido em Python, interface gráfica feita com a biblioteca tkinter e gráficos dinâmicos com matplotlib.\n\n\
 Mecanica dos Solidos 1 - 2º Semestre de 2023\n\
 Professor Honorato\n\n\
 Aluno:\n\
