@@ -329,9 +329,9 @@ def diagrama_momento_fletor():
     canvas.create_text(x0-20, yv-110, text="Diagrama do momento fletor ("+str(f_default)+"."+str(l_default)+")",anchor="w",fill="black",font=('Helvetica 10 bold'),tag="fletor")
 
     #Apresenta os valores máximo e mínimo do momento fletor
-    canvas_text = str(f'{max(list(map(abs,mfletor))):.2f}') + str(f_default)
+    canvas_text = "-" + str(f'{max(list(map(abs,mfletor))):.2f}') + str(f_default)
     canvas.create_text(xf+5, yv-100, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="fletor")  #escreve o valor do momento fletor máximo
-    canvas_text = "-" + str(f'{max(list(map(abs,mfletor))):.2f}') + str(f_default)    
+    canvas_text = str(f'{max(list(map(abs,mfletor))):.2f}') + str(f_default)    
     canvas.create_text(xf+5, yv, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="fletor")  #escreve o valor do momento fletor mínimo
 
     #multiplica cada elemento do eixo y (momento fletor) pela proporcionalidade b, de forma que fique dentro das linhas do diagrama
@@ -507,8 +507,6 @@ def diagrama_normal():
     global f_default
     yb=370
     yv=yb-30
-    valor_dist=abs(float(coord_dx_entry.get())-float(coord_ex_entry.get()))
-    coord_ap_e = float(coord_ex_entry.get())
     a=(xf-x0)/(float(coord_fv_entry.get())-float(coord_iv_entry.get())) #conversao proporcional ao valor fornecido para o comprimento da viga
 
     valores_qdx = []
@@ -572,7 +570,7 @@ def diagrama_normal():
         normal.append(somatorio_forca_x)
 
     #se não tiver força no eixo x, não existe diagrama normal
-    if (max(max(list(map(abs,normal))),abs(fexr)) == 0.0):
+    if (max(list(map(abs,normal))) == 0.0):
         canvas.create_line(x0,yv-100, xf, yv-100, dash=(10,10), tags="normal")
         canvas.create_line(x0,yv, xf, yv, dash=(10,10), tags="normal")
         canvas.create_text(x0, yv-50, text="Não há forças horizontais.", anchor="w", fill="red", font=('Helvetica 10 bold'),tag="normal")
@@ -592,19 +590,19 @@ def diagrama_normal():
     canvas.create_text(x0-20, yv-110, text="Diagrama da força Normal ("+str(f_default)+")", anchor="w", fill="black", font=('Helvetica 10 bold'),tag="normal")
 
     #Apresenta os valores máximo e mínimo da força normal
-    canvas_text = str(f'{max(max(list(map(abs,normal))),abs(fexr)):.2f}') + str(f_default)
+    canvas_text = str(f'{max(list(map(abs,normal))):.2f}') + str(f_default)
     canvas.create_text(xf+5, yv-100, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="normal")  #escreve o valor do momento fletor máximo
-    canvas_text = "-" + str(f'{max(max(list(map(abs,normal))),abs(fexr)):.2f}') + str(f_default)
+    canvas_text = "-" + str(f'{max(list(map(abs,normal))):.2f}') + str(f_default)
     canvas.create_text(xf+5, yv, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="normal")  #escreve o valor do momento fletor mínimo
 
     # proporcao para fazer o desenho do diagrama e sempre considerar a maior forca normal
-    b = 50/(max(max(list(map(abs,normal))),abs(fexr)))
+    b = 50/max(list(map(abs,normal)))
 
     #multiplica cada elemento do eixo y (força normal) pela proporcionalidade b, de forma que fique dentro das linhas do diagrama
     normal = [(yv-50+j*b) for j in normal] 
 
     #Cria a lista par ordenado para desenhar o diagrama
-    #par_coordenado = [x0,yv-50,x0,yv-50+fexr*b,x0+a*abs(float(coord_ex_entry.get())-xiqp[0]), yv-50+fexr*b] #coordenadas do ponto de apoio esquerdo até a primeira carga
+    par_coordenado = [x0,yv-50,x0,normal[0]] #coordenadas do ponto de apoio esquerdo até a primeira carga
     
     for i in list(range(len(qpx))):
         xi=abs(float(coord_iv_entry.get())-xiqp[i])
@@ -1299,7 +1297,7 @@ def configuracoes():
         janela_configuracoes.destroy()
     
     botao_definir = Button(frame, text = 'Definir', command = define_preferencias)
-    botao_definir.grid(row = 2, column = 1)
+    botao_definir.grid(row = 2, column = 1, padx=10, pady=10)
 
 ###################################
 ##Função Main - Interface Gráfica##
