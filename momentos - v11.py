@@ -5,6 +5,7 @@ from pkg_resources import resource_filename
 
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
+from PIL import ImageTk, Image 
 
 ###########################
 ##Diagrama forca cortante##
@@ -1299,6 +1300,42 @@ def configuracoes():
     botao_definir = Button(frame, text = 'Definir', command = define_preferencias)
     botao_definir.grid(row = 2, column = 1, padx=10, pady=10)
 
+############################################
+##Janela grafica com o leia-me do programa##
+############################################
+def leiame():
+    janela_leiame = Toplevel()
+    janela_leiame.title("Ajuda")
+
+    resource1 = resource_filename(__name__, 'favicon.ico')
+    resource2 = resource_filename(__name__, 'esquema.png')
+    resource2 = ImageTk.PhotoImage(Image.open(resource2))
+    janela_leiame.iconbitmap(resource1)
+
+
+    frame = Frame(janela_leiame)
+    frame.pack()
+    texto=Label(frame, text="\n\
+       Programa para o cálculo do momento fletor, força cortante e força normal em vigas isostáticas biapoiadas devido\n\
+    a ação N de forças pontuais e/ou distribuídas.\n\
+       Para o cálculo, deve ser fornecido o módulo da força e as coordenadas de aplicação dessa força. Quando se tratar\n\
+    de ação distribuída, se faz necessário as coordenadas de início e fim de atuação da referida ação.\n\
+       Devem ser fornecidos ainda  as  coordendas dos pontos de apoio esquerdo e direito, que podem conicidir com as \n\
+    coordendas  de  início  e  fim da viga. É possível o cálculo para vigas que possuem balanço tanto à esquerda quanto \n\
+    à direita, para isso,  as  coordenadas de início e fim da viga não devem conincidir com as coordendas dos pontos de\n\
+    apoio.\n\
+       As coordendas de todas as cargas e dos pontos de apoio devem ser abrangidas pelo comprimento da viga.\n\
+       A imagem abaixa ilustra a representação dos dados que são solicitados ao usuário para o cálculo.\n\
+    Em verde: carga distribuida.\n\
+    Em azul: carga pontual.\n\
+    Em vermelho: reação dos apoios.",justify=LEFT)
+    imagem = Label(frame, image=resource2)
+    texto.grid(row=0,column=0)
+    imagem.grid(row=1,column=0)
+
+    
+    janela_leiame.mainloop()
+
 ###################################
 ##Função Main - Interface Gráfica##
 ###################################
@@ -1367,6 +1404,7 @@ editmenu.add_command(label="Preferencias", command=configuracoes)
 
 #menu ajuda
 helpmenu = Menu(menubar, tearoff=0)
+helpmenu.add_command(label="Leia-me", command=leiame)
 helpmenu.add_command(label="Sobre", command=lambda: messagebox.showinfo(title="Info", message="Programa para cálculo do momento fletor, força cortante e normal em uma viga biapoiada.\n\
 Desenvolvido em Python, interface gráfica feita com a biblioteca tkinter e gráficos dinâmicos com matplotlib.\n\n\
 Mecanica dos Solidos 1 - 2º Semestre de 2023\n\
