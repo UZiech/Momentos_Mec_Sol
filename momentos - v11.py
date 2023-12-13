@@ -5,7 +5,8 @@ from pkg_resources import resource_filename
 
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
-from PIL import ImageTk, Image 
+from PIL import ImageTk, Image
+import numpy as np
 
 ###########################
 ##Diagrama forca cortante##
@@ -643,19 +644,39 @@ def diagrama_interativo():
     diag_fletor = fig.add_subplot(gs[2,0])
     diag_normal = fig.add_subplot(gs[4,0])
 
+    #Diagrama interativo da força cortante
+    y1=0.0
+    z1=np.array(f_cortante)
+    z2=np.array([y1]*len(x_cortante))
     diag_cortante.plot(x_cortante,f_cortante)
+    diag_cortante.fill_between(x_cortante,f_cortante,y1,where=(z1>=z2),interpolate=TRUE, step="pre",alpha=0.3,color="b")
+    diag_cortante.fill_between(x_cortante,f_cortante,y1,where=(z1<=z2),interpolate=TRUE, step="pre",alpha=0.3,color="r")    
     diag_cortante.set_ylabel("F ("+str(f_default)+")")
     diag_cortante.set_title("Diagrama Força Cortante ("+str(f_default)+")")
     diag_cortante.spines['right'].set_color('none')
     diag_cortante.spines['top'].set_position('zero')
 
+    #Diagrama interativo do momento fletor
+    y1=0.0
+    z1=np.array(m_fletor)
+    z2=np.array([y1]*len(x_fletor))
     diag_fletor.plot(x_fletor,m_fletor)
+    diag_fletor.fill_between(x_fletor,m_fletor,where=(z1>z2),interpolate=TRUE, step="mid",alpha=0.3,color="r")
+    diag_fletor.fill_between(x_fletor,m_fletor,where=(z1<z2),interpolate=TRUE, step="mid",alpha=0.3,color="b")  
+    #diag_fletor.get_yaxis().set_visible(False)
+    diag_fletor.set_yticks([])
     diag_fletor.set_ylabel("M ("+str(f_default)+"."+str(l_default)+")")
     diag_fletor.set_title("Diagrama Momento Fletor ("+str(f_default)+"."+str(l_default)+")")
     diag_fletor.spines['right'].set_color('none')
     diag_fletor.spines['top'].set_position('zero')
 
+    #Diagrama interativo do esforço normal
+    y1=0.0
+    z1=np.array(f_normal)
+    z2=np.array([y1]*len(x_normal))
     diag_normal.plot(x_normal,f_normal)
+    diag_normal.fill_between(x_normal,f_normal,y1,where=(z1>=z2),interpolate=TRUE, step="pre",alpha=0.3,color="b")
+    diag_normal.fill_between(x_normal,f_normal,y1,where=(z1<=z2),interpolate=TRUE, step="pre",alpha=0.3,color="r") 
     diag_normal.set_xlabel("X ("+str(l_default)+")")
     diag_normal.set_ylabel("F ("+str(f_default)+")")
     diag_normal.set_title("Diagrama Força Normal ("+str(f_default)+")")
@@ -1317,14 +1338,15 @@ def leiame():
     frame.pack()
     texto=Label(frame, text="\n\
        Programa para o cálculo do momento fletor, força cortante e força normal em vigas isostáticas biapoiadas devido\n\
-    a ação N de forças pontuais e/ou distribuídas.\n\
-       Para o cálculo, deve ser fornecido o módulo da força e as coordenadas de aplicação dessa força. Quando se tratar\n\
-    de ação distribuída, se faz necessário as coordenadas de início e fim de atuação da referida ação.\n\
+    a ação de N forças pontuais e/ou distribuídas.\n\
+       Para o cálculo, deve ser fornecido o módulo da força em cada eixo e a coordenada de aplicação da força. Quando \n\
+    se tratar de ação distribuída, é necessário a coordenada de início e fim de atuação da referida força.\n\
        Devem ser fornecidos ainda  as  coordendas dos pontos de apoio esquerdo e direito, que podem conicidir com as \n\
     coordendas  de  início  e  fim da viga. É possível o cálculo para vigas que possuem balanço tanto à esquerda quanto \n\
     à direita, para isso,  as  coordenadas de início e fim da viga não devem conincidir com as coordendas dos pontos de\n\
     apoio.\n\
        As coordendas de todas as cargas e dos pontos de apoio devem ser abrangidas pelo comprimento da viga.\n\
+       As hastes dos vetores são proporcionais ao módulo da força aplicada.\n\
        A imagem abaixa ilustra a representação dos dados que são solicitados ao usuário para o cálculo.\n\
     Em verde: carga distribuida.\n\
     Em azul: carga pontual.\n\
