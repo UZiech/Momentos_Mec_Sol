@@ -546,7 +546,7 @@ def diagrama_normal():
         incremento = abs(valores_xfqd[i]-valores_xiqd[i])/100
         pos = valores_xiqd[i]
 
-        while (pos<valores_xfqd[i]):
+        while (pos<valores_xfqd[i]-incremento/2):
             qpx.append(valores_qdx[i]*incremento)
             xiqp.append(pos+incremento/2)
             pos=pos+incremento
