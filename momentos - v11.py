@@ -604,7 +604,7 @@ def diagrama_normal():
     normal = [(yv-50+j*b) for j in normal] 
 
     #Cria a lista par ordenado para desenhar o diagrama
-    par_coordenado = [x0,yv-50,x0,normal[0]] #coordenadas do ponto de apoio esquerdo até a primeira carga
+    par_coordenado = [x0,yv-50,x0+a*abs(float(coord_iv_entry.get())-xiqp[0]),yv-50,x0+a*abs(float(coord_iv_entry.get())-xiqp[0]),normal[0]] #coordenadas do ponto de apoio esquerdo até a primeira carga
     
     for i in list(range(len(qpx))):
         xi=abs(float(coord_iv_entry.get())-xiqp[i])
