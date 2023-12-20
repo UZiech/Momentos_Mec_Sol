@@ -331,9 +331,9 @@ def diagrama_momento_fletor():
     canvas.create_text(x0-20, yv-110, text="Diagrama do momento fletor ("+str(f_default)+"."+str(l_default)+")",anchor="w",fill="black",font=('Helvetica 10 bold'),tag="fletor")
 
     #Apresenta os valores máximo e mínimo do momento fletor
-    canvas_text = "-" + str(f'{max(list(map(abs,mfletor))):.2f}') + str(f_default)
+    canvas_text = "-" + str(f'{max(list(map(abs,mfletor))):.2f}') + str(f_default) + "." + str(l_default)
     canvas.create_text(xf+5, yv-100, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="fletor")  #escreve o valor do momento fletor máximo
-    canvas_text = str(f'{max(list(map(abs,mfletor))):.2f}') + str(f_default)    
+    canvas_text = str(f'{max(list(map(abs,mfletor))):.2f}') + str(f_default) + "." + str(l_default)    
     canvas.create_text(xf+5, yv, text=canvas_text, fill="black", anchor=W, font=('Helvetica 10 bold'),tag="fletor")  #escreve o valor do momento fletor mínimo
 
     #multiplica cada elemento do eixo y (momento fletor) pela proporcionalidade b, de forma que fique dentro das linhas do diagrama
